@@ -1,31 +1,31 @@
 supplier_id,supplier_name,region,category_specialization,rating
-1,Sanchez PLC,West,Finished Goods,4.39
-2,Morgan Cook and Jackson,Central,Electrical,2.97
-3,Bell-Mullen,South,Mechanical,2.32
-4,Thompson and Sons,North,Mechanical,4.79
-5,Glass Cunningham and Reid,Central,Packaging,3.62
-6,Harrison Ltd,East,Packaging,1.46
-7,Hayes-Brown,East,Electrical,1.84
-8,Cruz Carpenter and Best,North,Raw Material,2.88
-9,Rosario Group,North,Packaging,1.71
-10,Williams Ltd,West,Raw Material,2.39
-11,Hardin-Hughes,East,Finished Goods,3.1
-12,Davis-Gregory,East,Packaging,2.87
-13,Alvarado Rangel and Collins,West,Mechanical,1.99
-14,Schneider-Murphy,South,Finished Goods,4.65
-15,Smith-Parker,South,Packaging,4.4
-16,Moore LLC,North,Finished Goods,1.59
-17,Anderson Bennett and Martin,Central,Mechanical,4.45
-18,Rhodes-Young,West,Finished Goods,4.31
-19,Allen Sheppard and Mueller,South,Packaging,4.7
-20,Barnes Martin and Gonzalez,Central,Mechanical,3.9
-21,Sawyer-Spencer,North,Finished Goods,1.12
-22,Nelson PLC,South,Raw Material,2.57
-23,Arias-Perry,West,Finished Goods,2.4
-24,Brooks Inc,East,Electrical,3.21
-25,Johnson Group,South,Raw Material,1.11
-26,Scott and Sons,Central,Finished Goods,4.12
-27,Young-Martinez,South,Raw Material,4.13
-28,Carlson-Smith,Central,Finished Goods,2.48
-29,Smith-Gomez,Central,Raw Material,1.54
-30,Jones-Fox,Central,Finished Goods,1.42
+1,Vargas Ltd,South,Electrical,4.95
+2,Barton Jefferson and Burke,North,Finished Goods,2.5
+3,Reed Group,East,Electrical,2.48
+4,Holland Smith and Fisher,West,Electrical,4.25
+5,Yu-Reid,West,Mechanical,4.79
+6,Thompson-Boyd,East,Finished Goods,4.94
+7,Hampton Marshall and Petersen,Central,Packaging,4.01
+8,Christian-Rivas,North,Packaging,2.51
+9,Sanchez-Marshall,Central,Raw Material,1.33
+10,Johnson-Rosales,South,Raw Material,4.11
+11,Kelly LLC,East,Packaging,3.23
+12,Haynes Hill and Smith,South,Electrical,2.7
+13,Cortez Group,Central,Mechanical,4.63
+14,Alvarez Joseph and West,North,Electrical,1.44
+15,Walker-Holt,East,Finished Goods,2.97
+16,Kennedy-Schmidt,West,Finished Goods,1.05
+17,Bell-Chavez,East,Packaging,2.87
+18,Martinez and Sons,East,Electrical,1.23
+19,Herrera Gill and Lopez,South,Raw Material,1.48
+20,Hardy-Bray,Central,Finished Goods,1.47
+21,Hooper-Wall,East,Mechanical,3.6
+22,White-Smith,Central,Mechanical,3.98
+23,Williams-Brown,East,Mechanical,3.33
+24,Oneill Henry and Salas,Central,Packaging,4.85
+25,Mendoza-Peterson,North,Packaging,2.5
+26,Wilson-Jones,West,Electrical,2.14
+27,Soto Brown and Hernandez,Central,Packaging,4.47
+28,Mcknight Inc,Central,Raw Material,1.89
+29,Carlson Montgomery and Rowe,West,Raw Material,4.85
+30,Evans-Chapman,West,Packaging,1.05
