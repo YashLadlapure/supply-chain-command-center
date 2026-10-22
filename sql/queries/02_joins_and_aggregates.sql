@@ -103,3 +103,57 @@ JOIN warehouses AS w
     ON i.warehouse_id = w.warehouse_id
 GROUP BY w.warehouse_name, w.capacity_units
 ORDER BY inventory_value DESC;
+
+-- 6. Average order value by category (value of units ordered, cancelled orders excluded)
+WITH order_category_value AS (
+    SELECT
+        o.order_id,
+        p.category,
+        SUM(oi.ordered_qty * p.unit_price) AS order_value
+    FROM orders AS o
+    JOIN order_items AS oi
+        ON o.order_id = oi.order_id
+    JOIN products AS p
+        ON oi.product_id = p.product_id
+    WHERE o.status <> 'Cancelled'
+    GROUP BY o.order_id, p.category
+)
+SELECT
+    category,
+    COUNT(*) AS orders,
+    ROUND(AVG(order_value), 2) AS avg_order_value
+FROM order_category_value
+GROUP BY category
+ORDER BY avg_order_value DESC;
+
+-- 7. Open purchase order value by supplier (Pending and Released POs)
+SELECT
+    sp.supplier_name,
+    COUNT(po.po_id) AS open_pos,
+    SUM(po.quantity) AS open_units,
+    ROUND(SUM(po.quantity * p.unit_price), 2) AS open_po_value
+FROM purchase_orders AS po
+JOIN suppliers AS sp
+    ON po.supplier_id = sp.supplier_id
+JOIN products AS p
+    ON po.product_id = p.product_id
+WHERE po.status IN ('Pending', 'Released')
+GROUP BY sp.supplier_name
+ORDER BY open_po_value DESC;
+
+-- 8. Forecast error (MAPE) by product, worst 10
+SELECT
+    p.product_name,
+    p.category,
+    SUM(f.forecast_qty) AS forecast_units,
+    SUM(f.actual_qty) AS actual_units,
+    ROUND(
+        AVG(ABS(f.actual_qty - f.forecast_qty)::numeric / NULLIF(f.actual_qty, 0)) * 100,
+        2
+    ) AS mape_percent
+FROM forecasts AS f
+JOIN products AS p
+    ON f.product_id = p.product_id
+GROUP BY p.product_name, p.category
+ORDER BY mape_percent DESC
+LIMIT 10;

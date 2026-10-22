@@ -106,3 +106,134 @@ LEFT JOIN open_supply AS os
     AND ls.warehouse_id = os.warehouse_id
 ORDER BY uncovered_gap DESC, p.product_name
 LIMIT 20;
+
+-- 4. OTIF by region (region of the shipping warehouse), delivered orders
+WITH order_lines AS (
+    SELECT
+        order_id,
+        SUM(ordered_qty) AS ordered_units,
+        SUM(fulfilled_qty) AS fulfilled_units
+    FROM order_items
+    GROUP BY order_id
+),
+order_delivery AS (
+    SELECT
+        order_id,
+        MIN(promised_date) AS promised_date,
+        MAX(actual_date) AS delivered_date
+    FROM shipments
+    WHERE status = 'Delivered'
+    GROUP BY order_id
+)
+SELECT
+    w.region,
+    COUNT(*) AS delivered_orders,
+    ROUND(AVG((d.delivered_date <= d.promised_date)::int) * 100, 2) AS on_time_percent,
+    ROUND(AVG((l.fulfilled_units = l.ordered_units)::int) * 100, 2) AS in_full_percent,
+    ROUND(
+        AVG((d.delivered_date <= d.promised_date AND l.fulfilled_units = l.ordered_units)::int) * 100,
+        2
+    ) AS otif_percent
+FROM orders AS o
+JOIN warehouses AS w
+    ON o.warehouse_id = w.warehouse_id
+JOIN order_delivery AS d
+    ON o.order_id = d.order_id
+JOIN order_lines AS l
+    ON o.order_id = l.order_id
+GROUP BY w.region
+ORDER BY otif_percent;
+
+-- 5. Fill rate by product for shipped orders, lowest 10 (products with at least 20 units ordered)
+WITH product_fill AS (
+    SELECT
+        oi.product_id,
+        SUM(oi.ordered_qty) AS ordered_units,
+        SUM(oi.fulfilled_qty) AS fulfilled_units
+    FROM order_items AS oi
+    JOIN orders AS o
+        ON oi.order_id = o.order_id
+    WHERE o.status IN ('Delivered', 'In Transit', 'Delayed')
+    GROUP BY oi.product_id
+)
+SELECT
+    p.product_name,
+    p.category,
+    pf.ordered_units,
+    pf.fulfilled_units,
+    ROUND(pf.fulfilled_units::numeric / NULLIF(pf.ordered_units, 0) * 100, 2) AS fill_rate_percent
+FROM product_fill AS pf
+JOIN products AS p
+    ON pf.product_id = p.product_id
+WHERE pf.ordered_units >= 20
+ORDER BY fill_rate_percent, pf.ordered_units DESC
+LIMIT 10;
+
+-- 6. Supplier composite score (0-100) on received POs
+--    50% on-time rate, 30% supplier rating (quality proxy: the schema has no defect data),
+--    20% lateness score (1 = never late, 0 = 7+ days late on average)
+WITH supplier_stats AS (
+    SELECT
+        supplier_id,
+        COUNT(*) AS received_pos,
+        AVG((actual_date <= expected_date)::int) AS on_time_rate,
+        AVG(GREATEST(actual_date - expected_date, 0)) AS avg_days_late
+    FROM purchase_orders
+    WHERE status = 'Received'
+    GROUP BY supplier_id
+),
+scored AS (
+    SELECT
+        sp.supplier_name,
+        ss.received_pos,
+        ss.on_time_rate,
+        sp.rating / 5.0 AS quality_score,
+        1 - LEAST(ss.avg_days_late / 7.0, 1) AS lateness_score
+    FROM supplier_stats AS ss
+    JOIN suppliers AS sp
+        ON ss.supplier_id = sp.supplier_id
+)
+SELECT
+    supplier_name,
+    received_pos,
+    ROUND(on_time_rate * 100, 2) AS on_time_percent,
+    ROUND(quality_score * 100, 2) AS quality_score,
+    ROUND(lateness_score * 100, 2) AS lateness_score,
+    ROUND((0.5 * on_time_rate + 0.3 * quality_score + 0.2 * lateness_score) * 100, 2) AS composite_score
+FROM scored
+ORDER BY composite_score DESC;
+
+-- 7. Stockout risk: locations whose available stock covers less than 7 days of demand
+--    Daily demand = average actual monthly demand over the last 3 forecast months / 30,
+--    split evenly across the warehouses that stock the product
+WITH recent_demand AS (
+    SELECT
+        product_id,
+        AVG(actual_qty) / 30.0 AS daily_demand
+    FROM forecasts
+    WHERE forecast_month > (SELECT MAX(forecast_month) FROM forecasts) - INTERVAL '3 months'
+    GROUP BY product_id
+),
+location_cover AS (
+    SELECT
+        i.product_id,
+        i.warehouse_id,
+        i.stock_on_hand - i.reserved_qty AS available_qty,
+        rd.daily_demand / COUNT(*) OVER (PARTITION BY i.product_id) AS location_daily_demand
+    FROM inventory AS i
+    JOIN recent_demand AS rd
+        ON i.product_id = rd.product_id
+)
+SELECT
+    p.product_name,
+    w.warehouse_name,
+    lc.available_qty,
+    ROUND(lc.location_daily_demand, 2) AS daily_demand,
+    ROUND(lc.available_qty / NULLIF(lc.location_daily_demand, 0), 1) AS days_of_cover
+FROM location_cover AS lc
+JOIN products AS p
+    ON lc.product_id = p.product_id
+JOIN warehouses AS w
+    ON lc.warehouse_id = w.warehouse_id
+WHERE lc.available_qty / NULLIF(lc.location_daily_demand, 0) < 7
+ORDER BY days_of_cover, p.product_name;
