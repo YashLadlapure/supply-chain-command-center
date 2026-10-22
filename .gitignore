@@ -6,6 +6,9 @@ __pycache__/
 venv/
 *.egg-info/
 
+# Secrets (copy .env.example to .env)
+.env
+
 # IDE
 .vscode/
 .idea/

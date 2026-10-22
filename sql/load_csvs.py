@@ -1,14 +1,26 @@
 import os
+from urllib.parse import quote_plus
+
 import pandas as pd
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 
 # ---------- Configuration ----------
+# Read DB settings from the .env file (never committed; see .env.example)
+load_dotenv()
+
 CSV_DIR = os.path.join("data", "seed")
-DB_USER = "postgres"
-DB_PASSWORD = "Y%40sh1234"  # URL-encoded: Y@sh1234 -> Y%40sh1234
-DB_HOST = "localhost"
-DB_PORT = 5432
-DB_NAME = "supply_chain"
+DB_USER = os.getenv("DB_USER", "postgres")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_HOST = os.getenv("DB_HOST", "localhost")
+DB_PORT = os.getenv("DB_PORT", "5432")
+DB_NAME = os.getenv("DB_NAME", "supply_chain")
+
+if not DB_PASSWORD:
+    raise SystemExit("DB_PASSWORD is not set. Copy .env.example to .env and fill it in.")
+
+# URL-encode the password so special characters like @ don't break the URL
+DB_PASSWORD = quote_plus(DB_PASSWORD)
 
 # SQLAlchemy connection URL
 engine = create_engine(
