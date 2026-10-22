@@ -19,8 +19,5 @@ venv/
 .DS_Store
 Thumbs.db
 
-# Optional: large data files (if you don't want to commit CSVs)
-# data/seed/*.csv
-
-# Power BI local settings (optional)
+# Power BI local settings
 *.pbix.user
