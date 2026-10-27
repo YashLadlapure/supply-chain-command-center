@@ -21,3 +21,7 @@ Thumbs.db
 
 # Power BI local settings
 *.pbix.user
+
+# Power BI project local files
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
