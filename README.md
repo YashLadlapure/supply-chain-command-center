@@ -7,6 +7,8 @@ An end-to-end supply-chain analytics project: Python generates a year of realist
 ![Power BI](https://img.shields.io/badge/Power%20BI-DAX-F2C811?logo=powerbi&logoColor=black)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
+![Executive Scorecard](docs/screenshots/executive-scorecard.png)
+
 ## The problem
 
 Supply-chain managers need to know four things quickly: are customer orders arriving on time and complete, which suppliers are slowing us down, where stock is about to run out, and how far off the demand forecast is. This data usually sits in separate systems. This project brings it into one model with one set of KPI definitions.
@@ -133,7 +135,13 @@ The report is saved as a Power BI Project (`powerbi/SupplyChainCommandCenter.pbi
 | Supplier Performance | Which suppliers are reliable, and which are slowing us down? | Supplier region, category, PO month |
 | Inventory & Fulfillment | Where are we short of stock, and how much of each order do we ship? | Region, warehouse, category |
 
-Dashboard screenshots are still to be added.
+**Supplier Performance**
+
+![Supplier Performance](docs/screenshots/supplier-performance.png)
+
+**Inventory & Fulfillment**
+
+![Inventory & Fulfillment](docs/screenshots/inventory-fulfillment.png)
 
 ## Run it locally
 
@@ -183,7 +191,8 @@ Then run any file in `sql/queries/`, or open the report:
 │   └── dax-measures.md                          # model and measure summary
 ├── docs/
 │   ├── kpi-library.md        # KPI definitions
-│   └── validation-log.md     # SQL vs DAX comparison
+│   ├── validation-log.md     # SQL vs DAX comparison
+│   └── screenshots/          # report page screenshots
 ├── requirements.txt
 └── .env.example              # database settings template
 ```
@@ -198,7 +207,6 @@ Then run any file in `sql/queries/`, or open the report:
 - The supplier rating stands in for quality because there is no defect data.
 
 **Next steps:**
-- Add dashboard screenshots.
 - Add seasonal demand and supplier-specific lead-time patterns.
 - Run the full pipeline with one command.
 - Publish to Power BI Service with scheduled refresh.
