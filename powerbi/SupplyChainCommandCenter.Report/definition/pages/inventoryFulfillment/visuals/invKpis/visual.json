@@ -1,0 +1,80 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "invKpis",
+  "position": {
+    "x": 8,
+    "y": 72,
+    "z": 300,
+    "height": 110,
+    "width": 1264,
+    "tabOrder": 300
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Locations Tracked"
+                }
+              },
+              "queryRef": "_Measures.Locations Tracked",
+              "nativeQueryRef": "Locations Tracked"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Low-Stock Locations"
+                }
+              },
+              "queryRef": "_Measures.Low-Stock Locations",
+              "nativeQueryRef": "Low-Stock Locations"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Stockout Risk Locations"
+                }
+              },
+              "queryRef": "_Measures.Stockout Risk Locations",
+              "nativeQueryRef": "Stockout Risk Locations"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Open Orders"
+                }
+              },
+              "queryRef": "_Measures.Open Orders",
+              "nativeQueryRef": "Open Orders"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}
