@@ -118,18 +118,22 @@ JOIN order_lines AS l ON d.order_id = l.order_id;
 - **12 data-quality checks.** Examples: every order has lines, cancelled orders have no shipments, shipped quantities match fulfilled quantities, and delivered shipments have a delivery date. All 12 return 0 violations on the committed data.
 - **Reference KPI values.** These are the numbers the Power BI cards must match.
 
-The SQL-versus-DAX comparison is in progress (see the status table below).
+[`docs/validation-log.md`](docs/validation-log.md) then compares six KPIs between SQL and the Power BI model on three slices each: overall, by region, and by category, month or supplier. All 18 slices match.
 
 ## Power BI report
 
-`powerbi/SupplyChainCommandCenter.pbix` currently has four pages: Order Performance, Inventory Health, Forecast Accuracy and Forecast Details.
+The report is saved as a Power BI Project (`powerbi/SupplyChainCommandCenter.pbip`), so the model and every page are stored as readable text files. [`powerbi/dax-measures.md`](powerbi/dax-measures.md) summarises the model.
 
-| Planned work | Status |
-|---|---|
-| Date table and a dedicated measures table | In progress |
-| DAX measures for the six KPIs above | In progress |
-| Pages: Executive Scorecard, Supplier Performance, Inventory & Fulfillment | In progress |
-| SQL vs DAX validation log and screenshots | In progress |
+- **Model:** a star schema with a marked `Date` table, 14 single-direction relationships, and 25 measures in a `_Measures` table.
+- **Pages:**
+
+| Page | Question it answers | Filters |
+|---|---|---|
+| Executive Scorecard | Are we serving customers well, and is the forecast reliable? | Region, warehouse, order month |
+| Supplier Performance | Which suppliers are reliable, and which are slowing us down? | Supplier region, category, PO month |
+| Inventory & Fulfillment | Where are we short of stock, and how much of each order do we ship? | Region, warehouse, category |
+
+Dashboard screenshots are still to be added.
 
 ## Run it locally
 
@@ -154,7 +158,11 @@ psql -U postgres -d supply_chain -f sql/views/03_forecast_details.sql
 psql -U postgres -d supply_chain -f sql/validation/kpi_checks.sql
 ```
 
-Then run any file in `sql/queries/`, or open the `.pbix` in Power BI Desktop and point it at your database.
+Then run any file in `sql/queries/`, or open the report:
+
+1. Open `powerbi/SupplyChainCommandCenter.pbip` in Power BI Desktop.
+2. If your database isn't `localhost` / `supply_chain`, change the values in **Transform data → Edit parameters**.
+3. Click **Refresh** and enter your PostgreSQL user and password when asked.
 
 ## Repository structure
 
@@ -168,9 +176,14 @@ Then run any file in `sql/queries/`, or open the `.pbix` in Power BI Desktop and
 │   ├── views/                # reusable reporting views
 │   ├── queries/              # KPI analysis (01–04)
 │   └── validation/           # data-quality checks and reference values
-├── powerbi/                  # Power BI report
+├── powerbi/
+│   ├── SupplyChainCommandCenter.pbip            # open this in Power BI Desktop
+│   ├── SupplyChainCommandCenter.SemanticModel/  # model as TMDL: tables, relationships, measures
+│   ├── SupplyChainCommandCenter.Report/         # the three report pages
+│   └── dax-measures.md                          # model and measure summary
 ├── docs/
-│   └── kpi-library.md        # KPI definitions
+│   ├── kpi-library.md        # KPI definitions
+│   └── validation-log.md     # SQL vs DAX comparison
 ├── requirements.txt
 └── .env.example              # database settings template
 ```
@@ -185,7 +198,7 @@ Then run any file in `sql/queries/`, or open the `.pbix` in Power BI Desktop and
 - The supplier rating stands in for quality because there is no defect data.
 
 **Next steps:**
-- Finish the Power BI model and pages, and publish the SQL vs DAX validation log with screenshots.
+- Add dashboard screenshots.
 - Add seasonal demand and supplier-specific lead-time patterns.
 - Run the full pipeline with one command.
 - Publish to Power BI Service with scheduled refresh.
