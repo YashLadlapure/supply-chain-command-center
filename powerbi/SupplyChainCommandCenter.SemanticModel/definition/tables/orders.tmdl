@@ -1,0 +1,60 @@
+table orders
+	lineageTag: fbccd235-3922-50e4-b605-f08c52834942
+
+	column order_id
+		dataType: int64
+		formatString: 0
+		isHidden
+		lineageTag: ab2a58bb-908f-5a0c-8560-f307e1c33d70
+		summarizeBy: none
+		sourceColumn: order_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_date
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 05d0131f-8807-5a4b-ae25-ddc9e95172db
+		summarizeBy: none
+		sourceColumn: order_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column warehouse_id
+		dataType: int64
+		formatString: 0
+		isHidden
+		lineageTag: 6a70f5f5-66ee-5217-98db-30c432702321
+		summarizeBy: none
+		sourceColumn: warehouse_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_name
+		dataType: string
+		lineageTag: 183fcf1e-bc7c-5ab2-a79d-bc2b9a22a204
+		summarizeBy: none
+		sourceColumn: customer_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column status
+		dataType: string
+		lineageTag: c0e8448e-bb83-5d2f-8a15-60fe8ef8d121
+		summarizeBy: none
+		sourceColumn: status
+
+		annotation SummarizationSetBy = Automatic
+
+	partition orders = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(Server, Database),
+				    public_orders = Source{[Schema="public",Item="orders"]}[Data]
+				in
+				    public_orders
+
+	annotation PBI_ResultType = Table

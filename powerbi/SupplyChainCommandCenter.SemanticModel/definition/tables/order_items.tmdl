@@ -1,0 +1,61 @@
+table order_items
+	lineageTag: b1d08316-8bb3-5cab-9755-8d965a26482b
+
+	column order_item_id
+		dataType: int64
+		formatString: 0
+		isHidden
+		lineageTag: 03f15781-f55a-5d0b-b36a-40eba410cd61
+		summarizeBy: none
+		sourceColumn: order_item_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_id
+		dataType: int64
+		formatString: 0
+		isHidden
+		lineageTag: 7780b8bd-6faf-5fa1-bdf5-e95ddd9dfca0
+		summarizeBy: none
+		sourceColumn: order_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_id
+		dataType: int64
+		formatString: 0
+		isHidden
+		lineageTag: 47019027-dd67-5795-ae3f-29efb39e0a84
+		summarizeBy: none
+		sourceColumn: product_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column ordered_qty
+		dataType: int64
+		formatString: 0
+		lineageTag: ad513557-ae1e-51ed-8124-1c7ee435c5f4
+		summarizeBy: sum
+		sourceColumn: ordered_qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column fulfilled_qty
+		dataType: int64
+		formatString: 0
+		lineageTag: 9f556e51-8653-5827-ad88-431b68978aa3
+		summarizeBy: sum
+		sourceColumn: fulfilled_qty
+
+		annotation SummarizationSetBy = Automatic
+
+	partition order_items = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(Server, Database),
+				    public_order_items = Source{[Schema="public",Item="order_items"]}[Data]
+				in
+				    public_order_items
+
+	annotation PBI_ResultType = Table

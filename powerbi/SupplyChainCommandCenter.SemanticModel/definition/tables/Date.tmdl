@@ -1,0 +1,77 @@
+table Date
+	lineageTag: b0171676-039a-5794-a861-2ca19c10e781
+	dataCategory: Time
+
+	column Date
+		dataType: dateTime
+		isNameInferred
+		isKey
+		formatString: Short Date
+		lineageTag: aacd47ac-6f1d-57ff-9cc4-af5f674a4bf1
+		summarizeBy: none
+		sourceColumn: [Date]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Year
+		dataType: int64
+		isNameInferred
+		formatString: 0
+		lineageTag: a0d972f5-409a-5e31-9fbf-537a3ea2fcf2
+		summarizeBy: none
+		sourceColumn: [Year]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quarter
+		dataType: string
+		isNameInferred
+		lineageTag: 06afee88-81c8-5847-ac07-ec8d93790742
+		summarizeBy: none
+		sourceColumn: [Quarter]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Number'
+		dataType: int64
+		isNameInferred
+		formatString: 0
+		lineageTag: 576edb4b-ec79-5e00-a9e4-bc5ae38cec73
+		summarizeBy: none
+		sourceColumn: [Month Number]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Month
+		dataType: string
+		isNameInferred
+		lineageTag: e2cc7e44-6f86-594a-b1ac-3c3b9712f43d
+		summarizeBy: none
+		sourceColumn: [Month]
+		sortByColumn: 'Month Start'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Start'
+		dataType: dateTime
+		isNameInferred
+		formatString: Short Date
+		lineageTag: 805ecfdf-cd17-55f5-a38d-4a4175182dde
+		summarizeBy: none
+		sourceColumn: [Month Start]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Date = calculated
+		mode: import
+		source = ```
+				ADDCOLUMNS (
+				    CALENDAR ( DATE ( 2025, 1, 1 ), DATE ( 2026, 12, 31 ) ),
+				    "Year", YEAR ( [Date] ),
+				    "Quarter", "Q" & QUARTER ( [Date] ),
+				    "Month Number", MONTH ( [Date] ),
+				    "Month", FORMAT ( [Date], "MMM yyyy" ),
+				    "Month Start", DATE ( YEAR ( [Date] ), MONTH ( [Date] ), 1 )
+				)
+				```
+

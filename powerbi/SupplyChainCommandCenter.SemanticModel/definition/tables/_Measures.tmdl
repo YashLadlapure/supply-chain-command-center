@@ -1,0 +1,267 @@
+table _Measures
+	lineageTag: 3252769d-c981-52e1-9a4f-4656b3e67fed
+
+	/// Number of customer orders.
+	measure 'Total Orders' = COUNTROWS ( orders )
+		formatString: #,0
+		displayFolder: Delivery
+		lineageTag: 7af20637-3911-5d3d-aae0-3688ba4b5cff
+
+	/// Orders not yet delivered or cancelled: Processing, In Transit or Delayed.
+	measure 'Open Orders' = CALCULATE ( COUNTROWS ( orders ), orders[status] IN { "Processing", "In Transit", "Delayed" } )
+		formatString: #,0
+		displayFolder: Delivery
+		lineageTag: 38446eca-6c5b-5948-bacd-655281b58be7
+
+	/// Delivered orders that arrived by the promised date and shipped every line in full, divided by delivered orders.
+	measure 'OTIF %' = ```
+			VAR DeliveredOrders =
+			    ADDCOLUMNS (
+			        CALCULATETABLE ( VALUES ( orders[order_id] ), orders[status] = "Delivered" ),
+			        "@OnTime",
+			            CALCULATE ( MAX ( shipments[actual_date] ) )
+			                <= CALCULATE ( MIN ( shipments[promised_date] ) ),
+			        "@InFull",
+			            CALCULATE ( SUM ( order_items[fulfilled_qty] ) )
+			                = CALCULATE ( SUM ( order_items[ordered_qty] ) )
+			    )
+			RETURN
+			    DIVIDE (
+			        COUNTROWS ( FILTER ( DeliveredOrders, [@OnTime] && [@InFull] ) ),
+			        COUNTROWS ( DeliveredOrders )
+			    )
+			```
+		formatString: 0.00%
+		displayFolder: Delivery
+		lineageTag: f262eb9f-bc94-5bc3-aa5d-74c56c826470
+
+	/// Units shipped divided by units ordered, for shipped orders only.
+	measure 'Fill Rate %' = ```
+			CALCULATE (
+			    DIVIDE ( SUM ( order_items[fulfilled_qty] ), SUM ( order_items[ordered_qty] ) ),
+			    orders[status] IN { "Delivered", "In Transit", "Delayed" }
+			)
+			```
+		formatString: 0.00%
+		displayFolder: Delivery
+		lineageTag: 9dbd4b06-291e-5fc5-b8a5-cb0221a3c3bc
+
+	/// Stock on hand multiplied by unit price.
+	measure 'Inventory Value' = SUMX ( inventory, inventory[stock_on_hand] * RELATED ( products[unit_price] ) )
+		formatString: #,0
+		displayFolder: Inventory
+		lineageTag: eadf94a5-294a-5fff-8895-a3c1e3783148
+
+	/// Stock on hand minus reserved quantity.
+	measure 'Available Stock' = SUM ( inventory[stock_on_hand] ) - SUM ( inventory[reserved_qty] )
+		formatString: #,0
+		displayFolder: Inventory
+		lineageTag: 6f7a0245-e201-5a2a-b4ac-10a04e570f70
+
+	/// Product and warehouse combinations with an inventory record.
+	measure 'Locations Tracked' = COUNTROWS ( inventory )
+		formatString: #,0
+		displayFolder: Inventory
+		lineageTag: fd3548d7-853f-5d98-930d-7ebcc3b0a668
+
+	/// Locations where available stock is below the reorder point.
+	measure 'Low-Stock Locations' = ```
+			COUNTROWS (
+			    FILTER (
+			        inventory,
+			        inventory[stock_on_hand] - inventory[reserved_qty] < RELATED ( products[reorder_point] )
+			    )
+			)
+			```
+		formatString: #,0
+		displayFolder: Inventory
+		lineageTag: aaaa289d-ca31-5428-ae83-da70534f9f84
+
+	/// Units needed to bring low-stock locations back up to their reorder point. Blank when no location is low.
+	measure 'Shortfall vs Reorder Point' = ```
+			SUMX (
+			    inventory,
+			    VAR Available = inventory[stock_on_hand] - inventory[reserved_qty]
+			    VAR ReorderPoint = RELATED ( products[reorder_point] )
+			    RETURN IF ( Available < ReorderPoint, ReorderPoint - Available )
+			)
+			```
+		formatString: #,0
+		displayFolder: Inventory
+		lineageTag: 7a5931e8-a065-5d39-b8b8-0dec6b7a7cfe
+
+	/// Days of stock left at one location, shown only when below 7. Daily demand is the average actual demand of the last 3 forecast months divided by 30, split evenly across the warehouses that stock the product.
+	measure 'Days of Cover (At Risk)' = ```
+			VAR Product = SELECTEDVALUE ( inventory[product_id] )
+			VAR LastMonth = CALCULATE ( MAX ( forecasts[forecast_month] ), REMOVEFILTERS () )
+			VAR DailyDemand =
+			    CALCULATE (
+			        AVERAGE ( forecasts[actual_qty] ),
+			        REMOVEFILTERS (),
+			        forecasts[product_id] = Product,
+			        forecasts[forecast_month] >= EDATE ( LastMonth, -2 )
+			    ) / 30
+			VAR Locations =
+			    CALCULATE ( COUNTROWS ( inventory ), REMOVEFILTERS (), inventory[product_id] = Product )
+			VAR Cover = DIVIDE ( [Available Stock], DIVIDE ( DailyDemand, Locations ) )
+			RETURN
+			    IF ( HASONEVALUE ( inventory[inventory_id] ) && DailyDemand > 0 && Cover < 7, Cover )
+			```
+		formatString: 0.0
+		displayFolder: Inventory
+		lineageTag: 121369cf-be6c-5c17-b393-70925e532470
+
+	/// Locations with less than 7 days of stock cover.
+	measure 'Stockout Risk Locations' = COUNTROWS ( FILTER ( inventory, NOT ISBLANK ( [Days of Cover (At Risk)] ) ) )
+		formatString: #,0
+		displayFolder: Inventory
+		lineageTag: 871453ed-b9fa-5f8e-8b2f-879602300b91
+
+	/// Available stock, shown only for locations at stockout risk.
+	measure 'At-Risk Available Stock' = IF ( NOT ISBLANK ( [Days of Cover (At Risk)] ), [Available Stock] )
+		formatString: #,0
+		displayFolder: Inventory
+		lineageTag: 8f909a46-5abb-5bd0-b649-97d1072fc6e1
+
+	/// Suppliers with at least one purchase order.
+	measure 'Active Suppliers' = DISTINCTCOUNT ( purchase_orders[supplier_id] )
+		formatString: #,0
+		displayFolder: Suppliers
+		lineageTag: cf060db0-bd19-5eb7-b932-e286f896a37b
+
+	/// Purchase orders that have been received.
+	measure 'Received POs' = CALCULATE ( COUNTROWS ( purchase_orders ), purchase_orders[status] = "Received" )
+		formatString: #,0
+		displayFolder: Suppliers
+		lineageTag: b32ba8f3-eeba-5bbb-8050-f6c24487544d
+
+	/// Received purchase orders that arrived after the expected date.
+	measure 'Late POs' = ```
+			CALCULATE (
+			    COUNTROWS ( FILTER ( purchase_orders, purchase_orders[actual_date] > purchase_orders[expected_date] ) ),
+			    purchase_orders[status] = "Received"
+			)
+			```
+		formatString: #,0
+		displayFolder: Suppliers
+		lineageTag: b369172d-6a03-5506-ae59-db332452483b
+
+	/// Average planned lead time across all purchase orders.
+	measure 'Avg Planned Lead Time (days)' = AVERAGE ( purchase_orders[lead_time_days] )
+		formatString: 0.00
+		displayFolder: Suppliers
+		lineageTag: 395fea4f-adaf-549a-91a8-a14c7dfc2ae4
+
+	/// Average days from order to receipt, for received purchase orders.
+	measure 'Avg Actual Lead Time (days)' = ```
+			CALCULATE (
+			    AVERAGEX (
+			        purchase_orders,
+			        INT ( purchase_orders[actual_date] - purchase_orders[order_date] )
+			    ),
+			    purchase_orders[status] = "Received",
+			    NOT ISBLANK ( purchase_orders[actual_date] )
+			)
+			```
+		formatString: 0.00
+		displayFolder: Suppliers
+		lineageTag: c5111fd5-5739-5363-bb81-b38ffd0545c8
+
+	/// Received purchase orders that arrived on or before the expected date.
+	measure 'Supplier On-Time %' = ```
+			CALCULATE (
+			    DIVIDE (
+			        COUNTROWS (
+			            FILTER ( purchase_orders, purchase_orders[actual_date] <= purchase_orders[expected_date] )
+			        ),
+			        COUNTROWS ( purchase_orders )
+			    ),
+			    purchase_orders[status] = "Received",
+			    NOT ISBLANK ( purchase_orders[actual_date] )
+			)
+			```
+		formatString: 0.00%
+		displayFolder: Suppliers
+		lineageTag: 1e562e1b-d433-5058-aa0d-d701917bb61d
+
+	/// Average days late on received purchase orders, counting early arrivals as 0.
+	measure 'Supplier Avg Days Late' = ```
+			CALCULATE (
+			    AVERAGEX (
+			        purchase_orders,
+			        MAX ( 0, INT ( purchase_orders[actual_date] - purchase_orders[expected_date] ) )
+			    ),
+			    purchase_orders[status] = "Received",
+			    NOT ISBLANK ( purchase_orders[actual_date] )
+			)
+			```
+		formatString: 0.00
+		displayFolder: Suppliers
+		lineageTag: 9111276a-05c2-593d-888a-5a2b0ef16695
+
+	/// 0-100 score: 50% on-time rate, 30% rating (used as the quality measure), 20% lateness. Use per supplier.
+	measure 'Supplier Score' = ```
+			VAR OnTime = [Supplier On-Time %]
+			VAR Quality = AVERAGE ( suppliers[rating] ) / 5
+			VAR Lateness = 1 - MIN ( [Supplier Avg Days Late] / 7, 1 )
+			RETURN
+			    IF ( NOT ISBLANK ( OnTime ), 100 * ( 0.5 * OnTime + 0.3 * Quality + 0.2 * Lateness ) )
+			```
+		formatString: 0.00
+		displayFolder: Suppliers
+		lineageTag: 5975d547-e0ac-5a9d-9bcb-1f60fb78150f
+
+	/// Sum of forecast demand.
+	measure 'Total Forecast Quantity' = SUM ( forecasts[forecast_qty] )
+		formatString: #,0
+		displayFolder: Forecasting
+		lineageTag: 1b1b2cf2-a202-541a-be66-cb1079ecf07f
+
+	/// Sum of actual demand.
+	measure 'Total Actual Quantity' = SUM ( forecasts[actual_qty] )
+		formatString: #,0
+		displayFolder: Forecasting
+		lineageTag: 77cac9bc-a8b0-5aad-8f97-f95bce8b6740
+
+	/// Average absolute percentage error across product-months.
+	measure 'MAPE %' = ```
+			AVERAGEX (
+			    forecasts,
+			    DIVIDE ( ABS ( forecasts[actual_qty] - forecasts[forecast_qty] ), forecasts[actual_qty] )
+			)
+			```
+		formatString: 0.00%
+		displayFolder: Forecasting
+		lineageTag: ba53dc0b-2c0e-5f8a-9955-03c13655c6eb
+
+	/// 1 minus MAPE.
+	measure 'Forecast Accuracy %' = 1 - [MAPE %]
+		formatString: 0.00%
+		displayFolder: Forecasting
+		lineageTag: 0581c6ec-eefa-51f6-9254-167a649dce31
+
+	/// Total absolute error divided by total actual demand.
+	measure 'WAPE %' = ```
+			DIVIDE (
+			    SUMX ( forecasts, ABS ( forecasts[actual_qty] - forecasts[forecast_qty] ) ),
+			    SUM ( forecasts[actual_qty] )
+			)
+			```
+		formatString: 0.00%
+		displayFolder: Forecasting
+		lineageTag: d76177f1-3a17-5cdb-a566-4f18ff0d0a3f
+
+	column Value
+		dataType: string
+		isHidden
+		isNameInferred
+		lineageTag: 5a7e08bb-ef81-5bfd-b482-351d79b3a7b5
+		summarizeBy: none
+		sourceColumn: [Value]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition _Measures = calculated
+		mode: import
+		source = ROW ( "Value", BLANK () )
+

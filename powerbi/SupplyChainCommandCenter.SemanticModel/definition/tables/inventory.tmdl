@@ -1,0 +1,72 @@
+table inventory
+	lineageTag: 798664fc-b2e7-5c02-a553-faa4314768a0
+
+	column inventory_id
+		dataType: int64
+		formatString: 0
+		isHidden
+		lineageTag: b93ecf3b-145b-5bd1-9029-b3dbe748b0aa
+		summarizeBy: none
+		sourceColumn: inventory_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_id
+		dataType: int64
+		formatString: 0
+		isHidden
+		lineageTag: 07ad7954-c560-5cb4-b11a-cd327cff42b9
+		summarizeBy: none
+		sourceColumn: product_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column warehouse_id
+		dataType: int64
+		formatString: 0
+		isHidden
+		lineageTag: ac3dbd6a-7504-5c7c-999c-6f2312fe1695
+		summarizeBy: none
+		sourceColumn: warehouse_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column stock_on_hand
+		dataType: int64
+		formatString: 0
+		lineageTag: f9fe6911-52eb-5df5-a3e2-a7a241cc94e8
+		summarizeBy: sum
+		sourceColumn: stock_on_hand
+
+		annotation SummarizationSetBy = Automatic
+
+	column reserved_qty
+		dataType: int64
+		formatString: 0
+		lineageTag: f7e099ab-6ec7-5def-8ee9-f7ccce9e86c9
+		summarizeBy: sum
+		sourceColumn: reserved_qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column last_updated
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 73f97d5e-acd8-5ce0-b2b0-71b51f3cfd11
+		summarizeBy: none
+		sourceColumn: last_updated
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	partition inventory = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(Server, Database),
+				    public_inventory = Source{[Schema="public",Item="inventory"]}[Data]
+				in
+				    public_inventory
+
+	annotation PBI_ResultType = Table

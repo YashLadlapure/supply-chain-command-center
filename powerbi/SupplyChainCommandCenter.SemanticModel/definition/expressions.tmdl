@@ -1,0 +1,11 @@
+/// PostgreSQL server, as host or host:port
+expression Server = "localhost" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: c1dd1ccf-f855-59d5-a613-0c55b75178af
+
+	annotation PBI_ResultType = Text
+
+/// PostgreSQL database loaded by sql/load_csvs.py
+expression Database = "supply_chain" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 084fda9a-e56e-50e5-9511-d6ce561d2e5b
+
+	annotation PBI_ResultType = Text

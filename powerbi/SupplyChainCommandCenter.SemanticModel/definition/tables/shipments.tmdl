@@ -1,0 +1,91 @@
+table shipments
+	lineageTag: 335cb021-7ca4-5dae-9f9e-0745595e1732
+
+	column shipment_id
+		dataType: int64
+		formatString: 0
+		isHidden
+		lineageTag: 11a931ba-baef-5d7f-bcbf-e9625dfc1d73
+		summarizeBy: none
+		sourceColumn: shipment_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_id
+		dataType: int64
+		formatString: 0
+		isHidden
+		lineageTag: 50d5c0bc-69c6-57a9-a47c-9070e0b7268c
+		summarizeBy: none
+		sourceColumn: order_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_id
+		dataType: int64
+		formatString: 0
+		isHidden
+		lineageTag: d81c1d06-dbe1-54e3-802b-b48af9a0d29c
+		summarizeBy: none
+		sourceColumn: product_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column promised_date
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 865924a1-792d-5127-9dbf-40636e0b2c03
+		summarizeBy: none
+		sourceColumn: promised_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column actual_date
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 027b1e13-4eae-5abd-96a1-ffad703a6c46
+		summarizeBy: none
+		sourceColumn: actual_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column status
+		dataType: string
+		lineageTag: 46cbb8a8-f5bb-57cf-ae64-277930940fae
+		summarizeBy: none
+		sourceColumn: status
+
+		annotation SummarizationSetBy = Automatic
+
+	column delay_days
+		dataType: int64
+		formatString: 0
+		lineageTag: 80cc7be2-a499-502f-9d8d-c9191e6ebd89
+		summarizeBy: none
+		sourceColumn: delay_days
+
+		annotation SummarizationSetBy = Automatic
+
+	column shipped_qty
+		dataType: int64
+		formatString: 0
+		lineageTag: fd1a2c46-b22b-5cae-97dd-f5ea3df09e17
+		summarizeBy: sum
+		sourceColumn: shipped_qty
+
+		annotation SummarizationSetBy = Automatic
+
+	partition shipments = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(Server, Database),
+				    public_shipments = Source{[Schema="public",Item="shipments"]}[Data]
+				in
+				    public_shipments
+
+	annotation PBI_ResultType = Table

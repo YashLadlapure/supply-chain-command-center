@@ -1,0 +1,23 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_QueryOrder = ["Server","Database","products","suppliers","warehouses","orders","order_items","inventory","purchase_orders","shipments","forecasts"]
+
+ref table products
+ref table suppliers
+ref table warehouses
+ref table orders
+ref table order_items
+ref table inventory
+ref table purchase_orders
+ref table shipments
+ref table forecasts
+ref table Date
+ref table _Measures

@@ -1,0 +1,65 @@
+table products
+	lineageTag: 8a6986bb-bb3d-5d53-bb8e-ea9069d89a7a
+
+	column product_id
+		dataType: int64
+		formatString: 0
+		isHidden
+		lineageTag: 5e0f5f21-bb9a-59ff-a21e-c71ce72fb40a
+		summarizeBy: none
+		sourceColumn: product_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_name
+		dataType: string
+		lineageTag: 30fe5b15-422a-580a-8398-4c8143076c52
+		summarizeBy: none
+		sourceColumn: product_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column category
+		dataType: string
+		lineageTag: 038b6645-5b1c-53ac-ace6-d11f6e0551c9
+		summarizeBy: none
+		sourceColumn: category
+
+		annotation SummarizationSetBy = Automatic
+
+	column unit_price
+		dataType: double
+		lineageTag: 34fab7ef-9b6f-5bc3-8713-b18c4331badd
+		summarizeBy: none
+		sourceColumn: unit_price
+
+		annotation SummarizationSetBy = Automatic
+
+	column lead_time_days
+		dataType: int64
+		formatString: 0
+		lineageTag: 0e90312a-2ac1-5883-9173-92081a304dc9
+		summarizeBy: none
+		sourceColumn: lead_time_days
+
+		annotation SummarizationSetBy = Automatic
+
+	column reorder_point
+		dataType: int64
+		formatString: 0
+		lineageTag: 585bf55a-a563-5773-9eb4-59b5974d98eb
+		summarizeBy: none
+		sourceColumn: reorder_point
+
+		annotation SummarizationSetBy = Automatic
+
+	partition products = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(Server, Database),
+				    public_products = Source{[Schema="public",Item="products"]}[Data]
+				in
+				    public_products
+
+	annotation PBI_ResultType = Table

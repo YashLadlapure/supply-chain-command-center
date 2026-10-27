@@ -1,0 +1,55 @@
+relationship ee298981-e53a-54e4-b95d-22793bb5e5c9
+	fromColumn: orders.order_date
+	toColumn: Date.Date
+
+relationship 0e559d3f-fd31-54b2-a4cb-f510ef3b4853
+	fromColumn: purchase_orders.order_date
+	toColumn: Date.Date
+
+relationship aa36811b-8d42-5c30-aea5-ebd4d1838d39
+	fromColumn: forecasts.forecast_month
+	toColumn: Date.Date
+
+relationship 0a8b20db-0851-5e76-882a-e8fc4293ef2c
+	fromColumn: order_items.product_id
+	toColumn: products.product_id
+
+relationship 77e57581-902c-5be2-8a0f-c7a7162bfd1d
+	fromColumn: shipments.product_id
+	toColumn: products.product_id
+
+relationship 3efce359-09eb-5479-8ff0-9e68fd8ece87
+	fromColumn: inventory.product_id
+	toColumn: products.product_id
+
+relationship b91cc3aa-5d66-5c7a-93c6-003c9aff9337
+	fromColumn: purchase_orders.product_id
+	toColumn: products.product_id
+
+relationship b2601721-3a75-5303-800f-bc8461c9c8cc
+	fromColumn: forecasts.product_id
+	toColumn: products.product_id
+
+relationship 9c3cd555-17ce-51e5-88b5-13e8c8ac5ffd
+	fromColumn: orders.warehouse_id
+	toColumn: warehouses.warehouse_id
+
+relationship 07c89d57-8a11-5494-b4b7-de85f85c9d39
+	fromColumn: inventory.warehouse_id
+	toColumn: warehouses.warehouse_id
+
+relationship 43510077-118e-52ab-8b38-b1a4dfc627c7
+	fromColumn: purchase_orders.warehouse_id
+	toColumn: warehouses.warehouse_id
+
+relationship e2289134-42fa-54f5-b755-51ced7de5143
+	fromColumn: purchase_orders.supplier_id
+	toColumn: suppliers.supplier_id
+
+relationship bd540eb4-8645-58a2-a651-21ad38995cdb
+	fromColumn: order_items.order_id
+	toColumn: orders.order_id
+
+relationship 7b54aa9c-22bd-5e5f-9734-ac031dcdb73f
+	fromColumn: shipments.order_id
+	toColumn: orders.order_id

@@ -1,0 +1,55 @@
+table suppliers
+	lineageTag: d7f60cdf-402b-580a-9caf-1f71f4116b3f
+
+	column supplier_id
+		dataType: int64
+		formatString: 0
+		isHidden
+		lineageTag: a70280c2-d5c5-52c6-9469-b555d301b8f1
+		summarizeBy: none
+		sourceColumn: supplier_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column supplier_name
+		dataType: string
+		lineageTag: db1e58fe-d209-5d95-aff9-448c92aa5292
+		summarizeBy: none
+		sourceColumn: supplier_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column region
+		dataType: string
+		lineageTag: 4c019205-fca6-51f4-abf6-e6547a067d30
+		summarizeBy: none
+		sourceColumn: region
+
+		annotation SummarizationSetBy = Automatic
+
+	column category_specialization
+		dataType: string
+		lineageTag: 1e4b9300-a21b-5c63-91c4-87ee698f2086
+		summarizeBy: none
+		sourceColumn: category_specialization
+
+		annotation SummarizationSetBy = Automatic
+
+	column rating
+		dataType: double
+		lineageTag: 0de41b17-a07a-5301-ab9b-a8563da33f01
+		summarizeBy: none
+		sourceColumn: rating
+
+		annotation SummarizationSetBy = Automatic
+
+	partition suppliers = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(Server, Database),
+				    public_suppliers = Source{[Schema="public",Item="suppliers"]}[Data]
+				in
+				    public_suppliers
+
+	annotation PBI_ResultType = Table

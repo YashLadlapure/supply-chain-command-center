@@ -1,0 +1,112 @@
+table purchase_orders
+	lineageTag: f05cd17f-779b-5974-b2ea-ea91103b1833
+
+	column po_id
+		dataType: int64
+		formatString: 0
+		isHidden
+		lineageTag: 88972687-93a2-592e-9eae-cde4a19c5f23
+		summarizeBy: none
+		sourceColumn: po_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column supplier_id
+		dataType: int64
+		formatString: 0
+		isHidden
+		lineageTag: 3ee80e9f-4a9a-5722-8451-7ae49b641a9a
+		summarizeBy: none
+		sourceColumn: supplier_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column warehouse_id
+		dataType: int64
+		formatString: 0
+		isHidden
+		lineageTag: bafaa341-cac1-53c0-bb29-95ccd51aa10b
+		summarizeBy: none
+		sourceColumn: warehouse_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_id
+		dataType: int64
+		formatString: 0
+		isHidden
+		lineageTag: 14390fd8-cb08-544d-be2c-37afba6f1f73
+		summarizeBy: none
+		sourceColumn: product_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_date
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 0ff50d11-3579-5232-94e6-d4c25ba785e4
+		summarizeBy: none
+		sourceColumn: order_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column expected_date
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 59f14f6c-7e1d-55c7-86d4-5ad2647d7dad
+		summarizeBy: none
+		sourceColumn: expected_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column actual_date
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: be7e4293-3262-551e-987f-7f7a12c4c5a5
+		summarizeBy: none
+		sourceColumn: actual_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column quantity
+		dataType: int64
+		formatString: 0
+		lineageTag: af0f5cc4-fd24-50cf-8893-3eb464b0b478
+		summarizeBy: sum
+		sourceColumn: quantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column status
+		dataType: string
+		lineageTag: cd9a5142-6c09-5b4e-a5b5-444c00faac9c
+		summarizeBy: none
+		sourceColumn: status
+
+		annotation SummarizationSetBy = Automatic
+
+	column lead_time_days
+		dataType: int64
+		formatString: 0
+		lineageTag: b48c52da-963d-5163-99f1-07f09f7f28c5
+		summarizeBy: none
+		sourceColumn: lead_time_days
+
+		annotation SummarizationSetBy = Automatic
+
+	partition purchase_orders = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(Server, Database),
+				    public_purchase_orders = Source{[Schema="public",Item="purchase_orders"]}[Data]
+				in
+				    public_purchase_orders
+
+	annotation PBI_ResultType = Table
