@@ -6,7 +6,7 @@
     "y": 190,
     "z": 400,
     "height": 250,
-    "width": 400,
+    "width": 310,
     "tabOrder": 400
   },
   "visual": {
@@ -85,6 +85,19 @@
               "expr": {
                 "Literal": {
                   "Value": "'Fill rate by category'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
                 }
               }
             }

@@ -38,11 +38,12 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Received POs"
+                  "Property": "Supplier Score"
                 }
               },
-              "queryRef": "_Measures.Received POs",
-              "nativeQueryRef": "Received POs"
+              "queryRef": "_Measures.Supplier Score",
+              "nativeQueryRef": "Score",
+              "displayName": "Score"
             },
             {
               "field": {
@@ -56,7 +57,8 @@
                 }
               },
               "queryRef": "_Measures.Supplier On-Time %",
-              "nativeQueryRef": "Supplier On-Time %"
+              "nativeQueryRef": "On-time %",
+              "displayName": "On-time %"
             },
             {
               "field": {
@@ -70,7 +72,8 @@
                 }
               },
               "queryRef": "_Measures.Supplier Avg Days Late",
-              "nativeQueryRef": "Supplier Avg Days Late"
+              "nativeQueryRef": "Avg days late",
+              "displayName": "Avg days late"
             },
             {
               "field": {
@@ -84,7 +87,8 @@
                 }
               },
               "queryRef": "_Measures.Avg Actual Lead Time (days)",
-              "nativeQueryRef": "Avg Actual Lead Time (days)"
+              "nativeQueryRef": "Avg lead time (days)",
+              "displayName": "Avg lead time (days)"
             },
             {
               "field": {
@@ -94,11 +98,12 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Supplier Score"
+                  "Property": "Received POs"
                 }
               },
-              "queryRef": "_Measures.Supplier Score",
-              "nativeQueryRef": "Supplier Score"
+              "queryRef": "_Measures.Received POs",
+              "nativeQueryRef": "POs received",
+              "displayName": "POs received"
             }
           ]
         }
@@ -121,6 +126,94 @@
         ]
       }
     },
+    "objects": {
+      "columnWidth": [
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "220D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "suppliers.supplier_name"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "70D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "_Measures.Supplier Score"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "85D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "_Measures.Supplier On-Time %"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "100D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "_Measures.Supplier Avg Days Late"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "130D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "_Measures.Avg Actual Lead Time (days)"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "100D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "_Measures.Received POs"
+          }
+        }
+      ]
+    },
     "visualContainerObjects": {
       "title": [
         {
@@ -136,6 +229,19 @@
               "expr": {
                 "Literal": {
                   "Value": "'Supplier performance (lowest score first)'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
                 }
               }
             }

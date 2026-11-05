@@ -6,7 +6,7 @@
     "y": 448,
     "z": 700,
     "height": 264,
-    "width": 808,
+    "width": 628,
     "tabOrder": 700
   },
   "visual": {
@@ -57,7 +57,8 @@
                 }
               },
               "queryRef": "_Measures.Shortfall vs Reorder Point",
-              "nativeQueryRef": "Shortfall vs Reorder Point"
+              "nativeQueryRef": "Shortfall (units)",
+              "displayName": "Shortfall (units)"
             }
           ]
         }
@@ -80,6 +81,52 @@
         ]
       }
     },
+    "objects": {
+      "columnWidth": [
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "250D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "products.product_name"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "200D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "warehouses.warehouse_name"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "110D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "_Measures.Shortfall vs Reorder Point"
+          }
+        }
+      ]
+    },
     "visualContainerObjects": {
       "title": [
         {
@@ -95,6 +142,19 @@
               "expr": {
                 "Literal": {
                   "Value": "'Below reorder point (largest shortfall first)'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
                 }
               }
             }

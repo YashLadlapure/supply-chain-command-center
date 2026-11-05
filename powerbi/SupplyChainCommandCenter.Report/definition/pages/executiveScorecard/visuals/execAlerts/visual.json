@@ -53,11 +53,12 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "At-Risk Available Stock"
+                  "Property": "Days of Cover (At Risk)"
                 }
               },
-              "queryRef": "_Measures.At-Risk Available Stock",
-              "nativeQueryRef": "At-Risk Available Stock"
+              "queryRef": "_Measures.Days of Cover (At Risk)",
+              "nativeQueryRef": "Days of cover",
+              "displayName": "Days of cover"
             },
             {
               "field": {
@@ -67,11 +68,12 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Days of Cover (At Risk)"
+                  "Property": "At-Risk Available Stock"
                 }
               },
-              "queryRef": "_Measures.Days of Cover (At Risk)",
-              "nativeQueryRef": "Days of Cover (At Risk)"
+              "queryRef": "_Measures.At-Risk Available Stock",
+              "nativeQueryRef": "Available",
+              "displayName": "Available"
             }
           ]
         }
@@ -94,6 +96,79 @@
         ]
       }
     },
+    "objects": {
+      "columnWidth": [
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "230D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "products.product_name"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "180D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "warehouses.warehouse_name"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "85D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "_Measures.Days of Cover (At Risk)"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "85D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "_Measures.At-Risk Available Stock"
+          }
+        }
+      ],
+      "total": [
+        {
+          "properties": {
+            "totals": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
     "visualContainerObjects": {
       "title": [
         {
@@ -109,6 +184,19 @@
               "expr": {
                 "Literal": {
                   "Value": "'Alerts: locations with under 7 days of stock'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
                 }
               }
             }
