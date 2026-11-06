@@ -11,7 +11,7 @@ An end-to-end supply-chain analytics project: Python generates a year of realist
 
 ## The problem
 
-Supply-chain managers need to know four things quickly: are customer orders arriving on time and complete, which suppliers are slowing us down, where stock is about to run out, and how far off the demand forecast is. This data usually sits in separate systems. This project brings it into one model with one set of KPI definitions.
+Supply-chain managers need to know four things quickly: are Customer orders arriving on time and complete, which suppliers are slowing us down, where stock is about to run out, and how far off the demand forecast is. This data usually sits in separate systems. This project brings it into one model with one set of KPI definitions.
 
 **What it helps a manager do:**
 - See OTIF and fill rate by month, region and warehouse
