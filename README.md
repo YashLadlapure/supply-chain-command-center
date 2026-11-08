@@ -166,6 +166,12 @@ psql -U postgres -d supply_chain -f sql/views/03_forecast_details.sql
 psql -U postgres -d supply_chain -f sql/validation/kpi_checks.sql
 ```
 
+Or, once the database exists and `.env` is filled in, run the schema, load, views and data-quality checks in one go:
+
+```bash
+python run_pipeline.py              # add --regenerate to rebuild the CSVs first
+```
+
 Then run any file in `sql/queries/`, or open the report:
 
 1. Open `powerbi/SupplyChainCommandCenter.pbip` in Power BI Desktop.
@@ -193,6 +199,7 @@ Then run any file in `sql/queries/`, or open the report:
 │   ├── kpi-library.md        # KPI definitions
 │   ├── validation-log.md     # SQL vs DAX comparison
 │   └── screenshots/          # report page screenshots
+├── run_pipeline.py           # rebuilds the database in one command
 ├── requirements.txt
 └── .env.example              # database settings template
 ```
@@ -208,7 +215,6 @@ Then run any file in `sql/queries/`, or open the report:
 
 **Next steps:**
 - Add seasonal demand and supplier-specific lead-time patterns.
-- Run the full pipeline with one command.
 - Publish to Power BI Service with scheduled refresh.
 
 ## License
