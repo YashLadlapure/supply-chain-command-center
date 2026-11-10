@@ -224,12 +224,12 @@
 - id: defect_rate
   question: What is the defect rate for Electrical products?
   type: refuse
-  expected_cards: ["Rule: questions about data that does not exist"]
+  expected_cards: ["Rule: no defect, return or product quality data"]
 
 - id: customer_satisfaction
   question: How satisfied are our customers?
   type: refuse
-  expected_cards: ["Rule: questions about data that does not exist"]
+  expected_cards: ["Rule: no customer satisfaction data"]
 
 - id: sales_2024
   question: What were total orders in 2024?
@@ -239,9 +239,9 @@
 - id: delivery_cost
   question: what did deliveries cost us last month
   type: refuse
-  expected_cards: ["Rule: questions about data that does not exist"]
+  expected_cards: ["Rule: no cost or profit data (delivery, freight, storage, labour)"]
 
 - id: employee_overtime
   question: How many overtime hours did warehouse staff work?
   type: refuse
-  expected_cards: ["Rule: questions about data that does not exist"]
+  expected_cards: ["Rule: no employee or staffing data"]

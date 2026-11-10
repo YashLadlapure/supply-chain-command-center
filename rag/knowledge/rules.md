@@ -7,9 +7,32 @@ Orders, purchase orders and forecasts cover 2025 only. There is no data for 2024
 Inventory is a single snapshot with no history, so stock levels cannot be compared over time.
 
 ## Rule: questions about data that does not exist
-The database has no data on defects or returns, customer satisfaction or complaints, costs (freight, delivery, holding or labour cost), employees or overtime, customer regions, or selling prices over time.
-For these questions, and for any year other than 2025, the answer is "not available in this data". Do not substitute a different measure. For example, do not answer a defect question with the supplier rating.
+If no table or KPI card covers what a question asks for, the answer is "not available in this data". Do not substitute a different measure, and do not guess.
+The same applies to any year other than 2025, to customer regions, and to price changes over time.
 The tool also does not predict future values or recommend actions.
+
+## Rule: no defect, return or product quality data
+The database records no defects, returns, rejects, scrap, damage or warranty claims.
+Questions about defect rate, return rate, failure rate or product quality get the answer "not available in this data".
+Do not use suppliers.rating in its place: it is a general rating, not a defect rate.
+Also called: defect rate, reject rate, return rate, quality issues, faulty units, PPM.
+
+## Rule: no customer satisfaction data
+The database records no customer feedback: no satisfaction scores, surveys, reviews, complaints or NPS.
+Questions about how satisfied or happy customers are get the answer "not available in this data".
+Do not use OTIF or fill rate in its place: they measure delivery, not what customers think.
+Also called: CSAT, NPS, customer feedback, complaints, customer experience.
+
+## Rule: no cost or profit data (delivery, freight, storage, labour)
+The database records no costs. There is no delivery cost, freight cost, shipping cost, storage cost, holding cost, labour cost or purchase cost, and no profit or margin.
+Questions about what deliveries, shipping or anything else cost, or about profit, margin or savings, get the answer "not available in this data".
+The only money column is products.unit_price. The values that can be calculated are quantity × unit_price: inventory value, shipped value, order value and open PO value.
+Also called: expenses, freight cost, transport cost, cost per order, margin, profitability.
+
+## Rule: no employee or staffing data
+The database records no people: no employees, headcount, shifts, working hours, overtime, absence or productivity.
+Questions about staff or labour get the answer "not available in this data".
+Also called: workforce, staff, labour hours, overtime hours, manpower, headcount.
 
 ## Rule: suppliers and customer orders are not linked
 Purchase orders link suppliers to warehouses and products. Customer orders and shipments link to warehouses and products, never to suppliers.
@@ -21,6 +44,7 @@ There are two region columns with different values.
 warehouses.region ('North', 'Central', 'South') is used for customer orders, fill rate, OTIF and inventory.
 suppliers.region ('Central', 'East', 'North', 'South', 'West') is used for supplier and purchase order questions.
 'East' or 'West' can only be a supplier region. If a question about orders or inventory names East or West, there is no such warehouse region.
+Applies whenever a question names North, Central, South, East or West. Also called: area, zone, territory.
 
 ## Rule: category does not filter whole orders
 A customer order can contain products from several categories, so it has no single category.
@@ -38,6 +62,7 @@ Values have no currency symbol, because the data does not record a currency.
 For "top" or "bottom" lists, return the names with their values, ordered, and use LIMIT for the number asked (5 if no number is given).
 
 ## Rule: months and dates
+Applies whenever a question names a month or period: January to December, 'Jun 2025', a quarter such as Q2, 'monthly', 'by month' or 'last month'.
 Order month comes from orders.order_date. PO month comes from purchase_orders.order_date. Forecast month is forecasts.forecast_month.
 Filter a month with a date range, for example order_date >= '2025-06-01' AND order_date < '2025-07-01', or with DATE_TRUNC('month', order_date) = '2025-06-01'.
 Group by month with DATE_TRUNC('month', date_column)::date.
