@@ -1,0 +1,822 @@
+[
+  {
+    "id": "otif_overall",
+    "type": "value",
+    "question": "What is our OTIF?",
+    "correct": false,
+    "refused": true,
+    "cards_hit": 1,
+    "cards_expected": 1,
+    "sql": null,
+    "sources": [
+      "Example: OTIF by region",
+      "OTIF %",
+      "Example: OTIF by month",
+      "On-Time Delivery %",
+      "Rule: category does not filter whole orders"
+    ],
+    "result_rows": [],
+    "seconds": 12.4,
+    "error": null
+  },
+  {
+    "id": "otif_north",
+    "type": "value",
+    "question": "hows north doing on otif",
+    "correct": false,
+    "refused": true,
+    "cards_hit": 2,
+    "cards_expected": 2,
+    "sql": null,
+    "sources": [
+      "Example: OTIF by region",
+      "OTIF %",
+      "Rule: which region a question means",
+      "Example: OTIF by month",
+      "Rule: no customer satisfaction data"
+    ],
+    "result_rows": [],
+    "seconds": 11.8,
+    "error": null
+  },
+  {
+    "id": "otif_jun",
+    "type": "value",
+    "question": "What was OTIF for orders placed in June 2025?",
+    "correct": false,
+    "refused": true,
+    "cards_hit": 1,
+    "cards_expected": 2,
+    "sql": null,
+    "sources": [
+      "Example: OTIF by region",
+      "OTIF %",
+      "Example: OTIF by month",
+      "On-Time Delivery %",
+      "Rule: the data is a snapshot on 31 December 2025"
+    ],
+    "result_rows": [],
+    "seconds": 15.9,
+    "error": null
+  },
+  {
+    "id": "fill_overall",
+    "type": "value",
+    "question": "What is the overall fill rate?",
+    "correct": true,
+    "refused": false,
+    "cards_hit": 1,
+    "cards_expected": 1,
+    "sql": "SELECT ROUND(CAST(SUM(oi.fulfilled_qty) AS DECIMAL) / NULLIF(SUM(oi.ordered_qty), 0) * 100, 2) AS overall_fill_rate_percent FROM order_items AS oi JOIN orders AS o ON oi.order_id = o.order_id WHERE o.status IN ('Delivered', 'In Transit', 'Delayed')",
+    "sources": [
+      "Example: products with the lowest fill rate",
+      "View: vw_order_performance",
+      "Example: fill rate by warehouse",
+      "Fill Rate %",
+      "Example: fill rate and shipped value by category"
+    ],
+    "result_rows": [
+      [
+        "92.68"
+      ]
+    ],
+    "seconds": 5.1,
+    "error": null
+  },
+  {
+    "id": "fill_north",
+    "type": "value",
+    "question": "Fill rate for orders shipped from North region warehouses?",
+    "correct": true,
+    "refused": false,
+    "cards_hit": 1,
+    "cards_expected": 1,
+    "sql": "SELECT ROUND(CAST(SUM(oi.fulfilled_qty) AS DECIMAL) / NULLIF(SUM(oi.ordered_qty), 0) * 100, 2) AS fill_rate_percent FROM orders AS o JOIN order_items AS oi ON o.order_id = oi.order_id JOIN warehouses AS w ON o.warehouse_id = w.warehouse_id WHERE o.status IN ('Delivered', 'In Transit', 'Delayed') AND w.region = 'North'",
+    "sources": [
+      "Fill Rate %",
+      "Example: fill rate by warehouse",
+      "Rule: which region a question means",
+      "View: vw_order_performance",
+      "Example: fill rate and shipped value by category"
+    ],
+    "result_rows": [
+      [
+        "91.62"
+      ]
+    ],
+    "seconds": 5.4,
+    "error": null
+  },
+  {
+    "id": "fill_electrical",
+    "type": "value",
+    "question": "what fill rate do we get on electrical products",
+    "correct": true,
+    "refused": false,
+    "cards_hit": 1,
+    "cards_expected": 1,
+    "sql": "SELECT p.category, SUM(oi.ordered_qty) AS ordered_units, SUM(oi.fulfilled_qty) AS fulfilled_units, ROUND(CAST(SUM(oi.fulfilled_qty) AS DECIMAL) / NULLIF(SUM(oi.ordered_qty), 0) * 100, 2) AS fill_rate_percent FROM orders AS o JOIN order_items AS oi ON o.order_id = oi.order_id JOIN products AS p ON oi.product_id = p.product_id WHERE p.category = 'Electrical' AND o.status IN ('Delivered', 'In Transit', 'Delayed') GROUP BY p.category ORDER BY fill_rate_percent, ordered_units DESC",
+    "sources": [
+      "Example: products with the lowest fill rate",
+      "Fill Rate %",
+      "Example: fill rate and shipped value by category",
+      "Rule: no defect, return or product quality data",
+      "View: vw_order_performance"
+    ],
+    "result_rows": [
+      [
+        "Electrical",
+        8275,
+        7522,
+        "90.90"
+      ]
+    ],
+    "seconds": 7.4,
+    "error": null
+  },
+  {
+    "id": "inv_value_overall",
+    "type": "value",
+    "question": "How much money is tied up in inventory?",
+    "correct": true,
+    "refused": false,
+    "cards_hit": 1,
+    "cards_expected": 1,
+    "sql": "SELECT SUM(stock_on_hand * unit_price) AS inventory_value FROM inventory JOIN products ON inventory.product_id = products.product_id",
+    "sources": [
+      "Inventory Value",
+      "Rule: no cost or profit data (delivery, freight, storage, labour)",
+      "Example: inventory value by warehouse",
+      "View: vw_inventory_health",
+      "Table: inventory"
+    ],
+    "result_rows": [
+      [
+        "62427937.91"
+      ]
+    ],
+    "seconds": 3.2,
+    "error": null
+  },
+  {
+    "id": "inv_value_central",
+    "type": "value",
+    "question": "What is the inventory value held in Central region warehouses?",
+    "correct": true,
+    "refused": false,
+    "cards_hit": 1,
+    "cards_expected": 1,
+    "sql": "SELECT SUM(i.stock_on_hand * p.unit_price) AS inventory_value FROM inventory AS i JOIN products AS p ON i.product_id = p.product_id JOIN warehouses AS w ON i.warehouse_id = w.warehouse_id WHERE w.region = 'Central'",
+    "sources": [
+      "Table: warehouses",
+      "Rule: which region a question means",
+      "Example: inventory value by warehouse",
+      "Inventory Value",
+      "Table: suppliers"
+    ],
+    "result_rows": [
+      [
+        "25477106.14"
+      ]
+    ],
+    "seconds": 3.9,
+    "error": null
+  },
+  {
+    "id": "inv_value_electrical",
+    "type": "value",
+    "question": "Stock value of Electrical products?",
+    "correct": true,
+    "refused": false,
+    "cards_hit": 1,
+    "cards_expected": 1,
+    "sql": "SELECT SUM(products.unit_price * inventory.stock_on_hand) AS stock_value FROM products JOIN inventory ON products.product_id = inventory.product_id WHERE products.category = 'Electrical'",
+    "sources": [
+      "Table: products",
+      "Inventory Value",
+      "View: vw_inventory_health",
+      "Available Stock",
+      "Low-Stock Locations"
+    ],
+    "result_rows": [
+      [
+        "14646786.16"
+      ]
+    ],
+    "seconds": 3.5,
+    "error": null
+  },
+  {
+    "id": "lead_planned_overall",
+    "type": "value",
+    "question": "What is the average planned supplier lead time in days?",
+    "correct": false,
+    "refused": false,
+    "cards_hit": 1,
+    "cards_expected": 1,
+    "sql": "SELECT AVG(lead_time_days) AS avg_planned_lead_time_days FROM purchase_orders WHERE status = 'Received'",
+    "sources": [
+      "Average Lead Time",
+      "Table: purchase_orders",
+      "Supplier Avg Days Late",
+      "Example: supplier delivery performance",
+      "Supplier Composite Score"
+    ],
+    "result_rows": [
+      [
+        "15.6064981949458484"
+      ]
+    ],
+    "seconds": 2.6,
+    "error": null
+  },
+  {
+    "id": "lead_actual_west",
+    "type": "value",
+    "question": "How long do suppliers in the West region actually take to deliver, on average?",
+    "correct": false,
+    "refused": true,
+    "cards_hit": 2,
+    "cards_expected": 2,
+    "sql": null,
+    "sources": [
+      "Average Lead Time",
+      "Supplier Avg Days Late",
+      "Supplier Composite Score",
+      "Table: suppliers",
+      "Rule: which region a question means"
+    ],
+    "result_rows": [],
+    "seconds": 5.1,
+    "error": null
+  },
+  {
+    "id": "lead_actual_electrical",
+    "type": "value",
+    "question": "avg actual lead time for electrical POs",
+    "correct": true,
+    "refused": false,
+    "cards_hit": 1,
+    "cards_expected": 1,
+    "sql": "SELECT AVG(COALESCE(actual_date - order_date, 0)) AS avg_actual_lead_time_days FROM purchase_orders WHERE product_id IN (SELECT product_id FROM products WHERE category = 'Electrical') AND status = 'Received'",
+    "sources": [
+      "Average Lead Time",
+      "Example: supplier delivery performance",
+      "Table: purchase_orders",
+      "Example: supplier on-time ranking",
+      "Supplier Avg Days Late"
+    ],
+    "result_rows": [
+      [
+        "15.3709677419354839"
+      ]
+    ],
+    "seconds": 3.7,
+    "error": null
+  },
+  {
+    "id": "fc_accuracy_overall",
+    "type": "value",
+    "question": "How accurate is our demand forecast?",
+    "correct": false,
+    "refused": false,
+    "cards_hit": 1,
+    "cards_expected": 1,
+    "sql": "SELECT (1 - AVG(ABS(actual_qty - forecast_qty) / actual_qty)) * 100 AS forecast_accuracy_percent FROM forecasts",
+    "sources": [
+      "Table: forecasts",
+      "Forecast Accuracy %",
+      "View: vw_forecast_details",
+      "Stockout Risk Locations",
+      "Example: stockout risk locations"
+    ],
+    "result_rows": [
+      [
+        "97.87500000000000000000"
+      ]
+    ],
+    "seconds": 3.0,
+    "error": null
+  },
+  {
+    "id": "fc_accuracy_electrical",
+    "type": "value",
+    "question": "What is forecast accuracy for the Electrical category?",
+    "correct": true,
+    "refused": false,
+    "cards_hit": 1,
+    "cards_expected": 1,
+    "sql": "SELECT (1 - AVG(absolute_percentage_error / 100)) * 100 AS forecast_accuracy_percent FROM vw_forecast_details WHERE category = 'Electrical'",
+    "sources": [
+      "Forecast Accuracy %",
+      "View: vw_forecast_details",
+      "Example: forecast error trend by category",
+      "Table: products",
+      "WAPE %"
+    ],
+    "result_rows": [
+      [
+        "86.04732269503546099300"
+      ]
+    ],
+    "seconds": 3.3,
+    "error": null
+  },
+  {
+    "id": "fc_accuracy_jun",
+    "type": "value",
+    "question": "Forecast accuracy for June 2025?",
+    "correct": false,
+    "refused": false,
+    "cards_hit": 2,
+    "cards_expected": 2,
+    "sql": "SELECT (1 - AVG(absolute_percentage_error)) * 100 AS forecast_accuracy FROM vw_forecast_details WHERE forecast_month = '2025-06-01'",
+    "sources": [
+      "Forecast Accuracy %",
+      "Table: forecasts",
+      "Rule: the data is a snapshot on 31 December 2025",
+      "View: vw_forecast_details",
+      "Rule: months and dates"
+    ],
+    "result_rows": [
+      [
+        "-1616.2600000000000000"
+      ]
+    ],
+    "seconds": 3.6,
+    "error": null
+  },
+  {
+    "id": "score_carlson",
+    "type": "value",
+    "question": "What is the supplier score for Carlson Montgomery and Rowe?",
+    "correct": false,
+    "refused": true,
+    "cards_hit": 1,
+    "cards_expected": 1,
+    "sql": null,
+    "sources": [
+      "Supplier Composite Score",
+      "Table: suppliers",
+      "Rule: the supplier rating stands in for quality",
+      "Example: supplier composite score",
+      "Table: purchase_orders"
+    ],
+    "result_rows": [],
+    "seconds": 14.4,
+    "error": null
+  },
+  {
+    "id": "score_johnson_rosales",
+    "type": "value",
+    "question": "how does johnson-rosales score as a supplier",
+    "correct": true,
+    "refused": false,
+    "cards_hit": 1,
+    "cards_expected": 1,
+    "sql": "SELECT ROUND((0.5 * (SELECT AVG(CAST((actual_date <= expected_date) AS INT)) FROM purchase_orders WHERE status = 'Received' AND supplier_id = (SELECT supplier_id FROM suppliers WHERE supplier_name = 'Johnson-Rosales')) + 0.3 * (SELECT rating / 5.0 FROM suppliers WHERE supplier_name = 'Johnson-Rosales') + 0.2 * (1 - LEAST((SELECT AVG(GREATEST(actual_date - expected_date, 0)) FROM purchase_orders WHERE status = 'Received' AND supplier_id = (SELECT supplier_id FROM suppliers WHERE supplier_name = 'Johnson-Rosales')) / 7.0, 1))) * 100, 2) AS supplier_score",
+    "sources": [
+      "Supplier Composite Score",
+      "Example: supplier composite score",
+      "Rule: the supplier rating stands in for quality",
+      "Table: suppliers",
+      "Example: supplier tiers"
+    ],
+    "result_rows": [
+      [
+        "82.93"
+      ]
+    ],
+    "seconds": 8.2,
+    "error": null
+  },
+  {
+    "id": "score_hardy_bray",
+    "type": "value",
+    "question": "What is the supplier score for Hardy-Bray?",
+    "correct": true,
+    "refused": false,
+    "cards_hit": 1,
+    "cards_expected": 1,
+    "sql": "SELECT ROUND((0.5 * (SELECT AVG(CAST((actual_date <= expected_date) AS INT)) FROM purchase_orders WHERE status = 'Received' AND supplier_id = (SELECT supplier_id FROM suppliers WHERE supplier_name = 'Hardy-Bray')) + 0.3 * (SELECT rating / 5.0 FROM suppliers WHERE supplier_name = 'Hardy-Bray') + 0.2 * (1 - LEAST((SELECT AVG(GREATEST(actual_date - expected_date, 0)) FROM purchase_orders WHERE status = 'Received' AND supplier_id = (SELECT supplier_id FROM suppliers WHERE supplier_name = 'Hardy-Bray')) / 7.0, 1))) * 100, 2) AS supplier_score",
+    "sources": [
+      "Supplier Composite Score",
+      "Rule: the supplier rating stands in for quality",
+      "Example: supplier composite score",
+      "Table: suppliers",
+      "Example: supplier tiers"
+    ],
+    "result_rows": [
+      [
+        "42.03"
+      ]
+    ],
+    "seconds": 13.2,
+    "error": null
+  },
+  {
+    "id": "open_orders",
+    "type": "value",
+    "question": "How many customer orders are still open?",
+    "correct": true,
+    "refused": false,
+    "cards_hit": 1,
+    "cards_expected": 1,
+    "sql": "SELECT COUNT(*) AS open_orders FROM orders WHERE status IN ('Processing', 'In Transit', 'Delayed')",
+    "sources": [
+      "Table: orders",
+      "Example: total orders",
+      "Example: open purchase order value by supplier",
+      "Rule: suppliers and customer orders are not linked",
+      "Table: order_items"
+    ],
+    "result_rows": [
+      [
+        8
+      ]
+    ],
+    "seconds": 2.4,
+    "error": null
+  },
+  {
+    "id": "cancelled_orders",
+    "type": "value",
+    "question": "how many orders got cancelled",
+    "correct": true,
+    "refused": false,
+    "cards_hit": 1,
+    "cards_expected": 1,
+    "sql": "SELECT COUNT(*) AS cancelled_orders FROM orders WHERE status = 'Cancelled'",
+    "sources": [
+      "Table: order_items",
+      "Example: monthly order trend",
+      "Table: orders",
+      "Example: total orders",
+      "Table: purchase_orders"
+    ],
+    "result_rows": [
+      [
+        28
+      ]
+    ],
+    "seconds": 2.1,
+    "error": null
+  },
+  {
+    "id": "low_stock_count",
+    "type": "value",
+    "question": "How many product-warehouse locations are below their reorder point?",
+    "correct": false,
+    "refused": true,
+    "cards_hit": 1,
+    "cards_expected": 1,
+    "sql": null,
+    "sources": [
+      "Low-Stock Locations",
+      "View: vw_inventory_health",
+      "Example: replenishment gap",
+      "Table: inventory",
+      "Table: warehouses"
+    ],
+    "result_rows": [],
+    "seconds": 5.1,
+    "error": null
+  },
+  {
+    "id": "stockout_risk_count",
+    "type": "value",
+    "question": "How many locations will run out of stock within a week?",
+    "correct": true,
+    "refused": false,
+    "cards_hit": 2,
+    "cards_expected": 2,
+    "sql": "SELECT COUNT(*) AS locations_at_risk FROM (SELECT i.product_id, i.warehouse_id, (i.stock_on_hand - i.reserved_qty) / NULLIF((SELECT AVG(forecasts.actual_qty) / 30.0 FROM forecasts WHERE forecast_month > (SELECT MAX(forecast_month) FROM forecasts) - INTERVAL '3 MONTHS' AND forecasts.product_id = i.product_id GROUP BY forecasts.product_id) / COUNT(*) OVER (PARTITION BY i.product_id), 0) AS daily_demand FROM inventory AS i) AS risk WHERE daily_demand < 7",
+    "sources": [
+      "Stockout Risk Locations",
+      "Example: stockout risk locations",
+      "Low-Stock Locations",
+      "View: vw_inventory_health",
+      "Table: inventory"
+    ],
+    "result_rows": [
+      [
+        54
+      ]
+    ],
+    "seconds": 15.7,
+    "error": null
+  },
+  {
+    "id": "late_pos",
+    "type": "value",
+    "question": "How many received purchase orders arrived late?",
+    "correct": true,
+    "refused": false,
+    "cards_hit": 1,
+    "cards_expected": 1,
+    "sql": "SELECT COUNT(po.po_id) AS late_received_pos FROM purchase_orders AS po JOIN suppliers AS sp ON po.supplier_id = sp.supplier_id WHERE po.status = 'Received' AND po.actual_date > po.expected_date",
+    "sources": [
+      "Supplier Avg Days Late",
+      "Table: purchase_orders",
+      "Average Lead Time",
+      "Example: supplier delivery performance",
+      "Rule: suppliers and customer orders are not linked"
+    ],
+    "result_rows": [
+      [
+        78
+      ]
+    ],
+    "seconds": 3.9,
+    "error": null
+  },
+  {
+    "id": "open_po_value",
+    "type": "value",
+    "question": "What is the total value of open purchase orders?",
+    "correct": true,
+    "refused": false,
+    "cards_hit": 1,
+    "cards_expected": 1,
+    "sql": "SELECT ROUND(SUM(po.quantity * p.unit_price), 2) AS open_po_value FROM purchase_orders AS po JOIN products AS p ON po.product_id = p.product_id WHERE po.status IN ('Pending', 'Released')",
+    "sources": [
+      "Open PO Value",
+      "Example: open purchase order value by supplier",
+      "Rule: no cost or profit data (delivery, freight, storage, labour)",
+      "Table: purchase_orders",
+      "Table: orders"
+    ],
+    "result_rows": [
+      [
+        "635713.15"
+      ]
+    ],
+    "seconds": 5.5,
+    "error": null
+  },
+  {
+    "id": "wape_overall",
+    "type": "value",
+    "question": "What is the overall WAPE?",
+    "correct": true,
+    "refused": false,
+    "cards_hit": 1,
+    "cards_expected": 1,
+    "sql": "SELECT CAST(SUM(ABS(actual_qty - forecast_qty)) AS DECIMAL) / NULLIF(SUM(actual_qty), 0) * 100 AS overall_wape_percent FROM forecasts AS f JOIN products AS p ON f.product_id = p.product_id",
+    "sources": [
+      "WAPE %",
+      "Example: forecast error trend by category",
+      "Supplier Composite Score",
+      "View: vw_forecast_details",
+      "Rule: category does not filter whole orders"
+    ],
+    "result_rows": [
+      [
+        "9.15586205243732924300"
+      ]
+    ],
+    "seconds": 5.1,
+    "error": null
+  },
+  {
+    "id": "avg_days_late",
+    "type": "value",
+    "question": "On average, how many days late are supplier deliveries?",
+    "correct": true,
+    "refused": false,
+    "cards_hit": 1,
+    "cards_expected": 1,
+    "sql": "SELECT AVG(GREATEST(actual_date - expected_date, 0)) AS avg_days_late FROM purchase_orders WHERE status = 'Received'",
+    "sources": [
+      "Supplier Avg Days Late",
+      "Supplier Composite Score",
+      "Table: purchase_orders",
+      "Average Lead Time",
+      "Example: supplier delivery performance"
+    ],
+    "result_rows": [
+      [
+        "1.0324909747292419"
+      ]
+    ],
+    "seconds": 3.4,
+    "error": null
+  },
+  {
+    "id": "top_warehouse_value",
+    "type": "list",
+    "question": "Which warehouse holds the most inventory value?",
+    "correct": true,
+    "refused": false,
+    "cards_hit": 2,
+    "cards_expected": 2,
+    "sql": "SELECT w.warehouse_name, ROUND(SUM(i.stock_on_hand * p.unit_price), 2) AS inventory_value FROM inventory AS i JOIN products AS p ON i.product_id = p.product_id JOIN warehouses AS w ON i.warehouse_id = w.warehouse_id GROUP BY w.warehouse_name ORDER BY inventory_value DESC LIMIT 1",
+    "sources": [
+      "Example: inventory value by warehouse",
+      "Table: warehouses",
+      "Inventory Value",
+      "View: vw_inventory_health",
+      "Example: category share of inventory value"
+    ],
+    "result_rows": [
+      [
+        "Warehouse West Margaret",
+        "13088620.04"
+      ]
+    ],
+    "seconds": 13.7,
+    "error": null
+  },
+  {
+    "id": "lowest_fill_warehouse",
+    "type": "list",
+    "question": "which warehouse has the worst fill rate",
+    "correct": true,
+    "refused": false,
+    "cards_hit": 2,
+    "cards_expected": 2,
+    "sql": "SELECT w.warehouse_name, w.region, ROUND(CAST(SUM(oi.fulfilled_qty) AS DECIMAL) / NULLIF(SUM(oi.ordered_qty), 0) * 100, 2) AS fill_rate_percent FROM orders AS o JOIN warehouses AS w ON o.warehouse_id = w.warehouse_id JOIN order_items AS oi ON o.order_id = oi.order_id WHERE o.status IN ('Delivered', 'In Transit', 'Delayed') GROUP BY w.warehouse_name, w.region ORDER BY fill_rate_percent ASC LIMIT 1",
+    "sources": [
+      "Example: fill rate by warehouse",
+      "View: vw_order_performance",
+      "Fill Rate %",
+      "Example: products with the lowest fill rate",
+      "Example: fill rate and shipped value by category"
+    ],
+    "result_rows": [
+      [
+        "Warehouse New Susanville",
+        "North",
+        "91.05"
+      ]
+    ],
+    "seconds": 14.5,
+    "error": null
+  },
+  {
+    "id": "bottom3_supplier_on_time",
+    "type": "list",
+    "question": "Which 3 suppliers have the lowest on-time delivery rate?",
+    "correct": false,
+    "refused": false,
+    "cards_hit": 1,
+    "cards_expected": 1,
+    "sql": "SELECT sp.supplier_name, AVG(CAST((po.actual_date <= po.expected_date) AS INT)) * 100 AS on_time_percent FROM purchase_orders AS po JOIN suppliers AS sp ON po.supplier_id = sp.supplier_id WHERE po.status = 'Received' GROUP BY sp.supplier_name ORDER BY on_time_percent ASC LIMIT 3",
+    "sources": [
+      "Example: supplier on-time ranking",
+      "Supplier On-Time %",
+      "On-Time Delivery %",
+      "Supplier Composite Score",
+      "Rule: suppliers and customer orders are not linked"
+    ],
+    "result_rows": [
+      [
+        "Haynes Hill and Smith",
+        "40.00000000000000000000"
+      ],
+      [
+        "Hardy-Bray",
+        "41.66666666666666666700"
+      ],
+      [
+        "Evans-Chapman",
+        "41.66666666666666666700"
+      ]
+    ],
+    "seconds": 11.6,
+    "error": null
+  },
+  {
+    "id": "top3_supplier_score",
+    "type": "list",
+    "question": "Top 3 suppliers by supplier score?",
+    "correct": true,
+    "refused": false,
+    "cards_hit": 1,
+    "cards_expected": 1,
+    "sql": "WITH supplier_stats AS (SELECT supplier_id, AVG(CAST((actual_date <= expected_date) AS INT)) AS on_time_rate, AVG(GREATEST(actual_date - expected_date, 0)) AS avg_days_late FROM purchase_orders WHERE status = 'Received' GROUP BY supplier_id) SELECT sp.supplier_name, ROUND((0.5 * ss.on_time_rate + 0.3 * sp.rating / 5.0 + 0.2 * (1 - LEAST(ss.avg_days_late / 7.0, 1))) * 100, 2) AS supplier_score FROM supplier_stats AS ss JOIN suppliers AS sp ON ss.supplier_id = sp.supplier_id ORDER BY supplier_score DESC LIMIT 3",
+    "sources": [
+      "Supplier Composite Score",
+      "Example: supplier composite score",
+      "Rule: the supplier rating stands in for quality",
+      "Table: suppliers",
+      "Example: supplier tiers"
+    ],
+    "result_rows": [
+      [
+        "Oneill Henry and Salas",
+        "99.10"
+      ],
+      [
+        "Cortez Group",
+        "97.78"
+      ],
+      [
+        "Soto Brown and Hernandez",
+        "96.82"
+      ]
+    ],
+    "seconds": 27.2,
+    "error": null
+  },
+  {
+    "id": "defect_rate",
+    "type": "refuse",
+    "question": "What is the defect rate for Electrical products?",
+    "correct": true,
+    "refused": true,
+    "cards_hit": 1,
+    "cards_expected": 1,
+    "sql": null,
+    "sources": [
+      "Rule: no defect, return or product quality data",
+      "Example: products with the lowest fill rate",
+      "Rule: the supplier rating stands in for quality",
+      "Fill Rate %",
+      "Table: products"
+    ],
+    "result_rows": [],
+    "seconds": 6.4,
+    "error": null
+  },
+  {
+    "id": "customer_satisfaction",
+    "type": "refuse",
+    "question": "How satisfied are our customers?",
+    "correct": true,
+    "refused": true,
+    "cards_hit": 1,
+    "cards_expected": 1,
+    "sql": null,
+    "sources": [
+      "Rule: no customer satisfaction data",
+      "Example: total orders",
+      "Fill Rate %",
+      "Example: on-time delivery by warehouse",
+      "View: vw_order_performance"
+    ],
+    "result_rows": [],
+    "seconds": 6.2,
+    "error": null
+  },
+  {
+    "id": "sales_2024",
+    "type": "refuse",
+    "question": "What were total orders in 2024?",
+    "correct": true,
+    "refused": true,
+    "cards_hit": 1,
+    "cards_expected": 1,
+    "sql": null,
+    "sources": [
+      "Example: total orders",
+      "Rule: the data is a snapshot on 31 December 2025",
+      "Table: order_items",
+      "Example: monthly order trend",
+      "Table: orders"
+    ],
+    "result_rows": [],
+    "seconds": 6.3,
+    "error": null
+  },
+  {
+    "id": "delivery_cost",
+    "type": "refuse",
+    "question": "what did deliveries cost us last month",
+    "correct": true,
+    "refused": true,
+    "cards_hit": 1,
+    "cards_expected": 1,
+    "sql": null,
+    "sources": [
+      "Rule: the data is a snapshot on 31 December 2025",
+      "Rule: no cost or profit data (delivery, freight, storage, labour)",
+      "Rule: months and dates",
+      "On-Time Delivery %",
+      "Example: OTIF by month"
+    ],
+    "result_rows": [],
+    "seconds": 4.8,
+    "error": null
+  },
+  {
+    "id": "employee_overtime",
+    "type": "refuse",
+    "question": "How many overtime hours did warehouse staff work?",
+    "correct": true,
+    "refused": true,
+    "cards_hit": 1,
+    "cards_expected": 1,
+    "sql": null,
+    "sources": [
+      "Rule: no employee or staffing data",
+      "OTIF %",
+      "Table: warehouses",
+      "Example: on-time delivery by warehouse",
+      "Example: fill rate by warehouse"
+    ],
+    "result_rows": [],
+    "seconds": 3.5,
+    "error": null
+  }
+]

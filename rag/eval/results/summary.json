@@ -1,0 +1,18 @@
+{
+  "baseline": {
+    "answerable_correct": 6,
+    "answerable_total": 30,
+    "refuse_correct": 4,
+    "refuse_total": 5,
+    "avg_seconds": 4.9
+  },
+  "retrieval": {
+    "answerable_correct": 20,
+    "answerable_total": 30,
+    "refuse_correct": 5,
+    "refuse_total": 5,
+    "avg_seconds": 7.5
+  },
+  "cards_all_found": 34,
+  "cards_questions": 35
+}

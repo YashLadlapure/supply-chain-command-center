@@ -1,0 +1,684 @@
+[
+  {
+    "id": "otif_overall",
+    "type": "value",
+    "question": "What is our OTIF?",
+    "correct": false,
+    "refused": false,
+    "cards_hit": 0,
+    "cards_expected": 1,
+    "sql": "SELECT SUM(CASE WHEN s.actual_date <= o.order_date THEN 1 ELSE 0 END) * 100.0 / COUNT(s.order_id) AS otif FROM shipments AS s JOIN orders AS o ON s.order_id = o.order_id",
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [
+      [
+        "1.6081871345029240"
+      ]
+    ],
+    "seconds": 28.6,
+    "error": null
+  },
+  {
+    "id": "otif_north",
+    "type": "value",
+    "question": "hows north doing on otif",
+    "correct": false,
+    "refused": false,
+    "cards_hit": 0,
+    "cards_expected": 2,
+    "sql": "SELECT SUM(CASE WHEN w.region = 'North' THEN oi.ordered_qty - oi.fulfilled_qty ELSE 0 END) AS otif_shortfall FROM order_items AS oi JOIN orders AS o ON oi.order_id = o.order_id JOIN warehouses AS w ON o.warehouse_id = w.warehouse_id",
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [
+      [
+        2340
+      ]
+    ],
+    "seconds": 3.7,
+    "error": null
+  },
+  {
+    "id": "otif_jun",
+    "type": "value",
+    "question": "What was OTIF for orders placed in June 2025?",
+    "correct": false,
+    "refused": true,
+    "cards_hit": 0,
+    "cards_expected": 2,
+    "sql": null,
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [],
+    "seconds": 10.9,
+    "error": null
+  },
+  {
+    "id": "fill_overall",
+    "type": "value",
+    "question": "What is the overall fill rate?",
+    "correct": false,
+    "refused": false,
+    "cards_hit": 0,
+    "cards_expected": 1,
+    "sql": "SELECT (SUM(COALESCE(ordered_qty - fulfilled_qty, 0)) / SUM(ordered_qty)) * 100 AS overall_fill_rate FROM order_items",
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [
+      [
+        0
+      ]
+    ],
+    "seconds": 3.2,
+    "error": null
+  },
+  {
+    "id": "fill_north",
+    "type": "value",
+    "question": "Fill rate for orders shipped from North region warehouses?",
+    "correct": false,
+    "refused": false,
+    "cards_hit": 0,
+    "cards_expected": 1,
+    "sql": "SELECT w.region, COUNT(DISTINCT o.order_id) AS total_orders, SUM(CASE WHEN s.actual_date IS NOT NULL THEN 1 ELSE 0 END) AS filled_orders FROM orders AS o JOIN warehouses AS w ON o.warehouse_id = w.warehouse_id LEFT JOIN shipments AS s ON o.order_id = s.order_id AND w.region = 'North' GROUP BY w.region",
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [
+      [
+        "Central",
+        196,
+        0
+      ],
+      [
+        "North",
+        202,
+        551
+      ],
+      [
+        "South",
+        102,
+        0
+      ]
+    ],
+    "seconds": 9.2,
+    "error": null
+  },
+  {
+    "id": "fill_electrical",
+    "type": "value",
+    "question": "what fill rate do we get on electrical products",
+    "correct": false,
+    "refused": false,
+    "cards_hit": 0,
+    "cards_expected": 1,
+    "sql": "SELECT (SUM(COALESCE(fulfilled_qty, 0)) / SUM(ordered_qty)) * 100 AS fill_rate FROM order_items JOIN products ON order_items.product_id = products.product_id WHERE products.category = 'Electrical'",
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [
+      [
+        0
+      ]
+    ],
+    "seconds": 2.9,
+    "error": null
+  },
+  {
+    "id": "inv_value_overall",
+    "type": "value",
+    "question": "How much money is tied up in inventory?",
+    "correct": true,
+    "refused": false,
+    "cards_hit": 0,
+    "cards_expected": 1,
+    "sql": "SELECT SUM(products.unit_price * inventory.stock_on_hand) AS tied_up_inventory_value FROM products JOIN inventory ON products.product_id = inventory.product_id",
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [
+      [
+        "62427937.91"
+      ]
+    ],
+    "seconds": 2.1,
+    "error": null
+  },
+  {
+    "id": "inv_value_central",
+    "type": "value",
+    "question": "What is the inventory value held in Central region warehouses?",
+    "correct": true,
+    "refused": false,
+    "cards_hit": 0,
+    "cards_expected": 1,
+    "sql": "SELECT SUM(products.unit_price * inventory.stock_on_hand) AS inventory_value FROM inventory JOIN products ON inventory.product_id = products.product_id JOIN warehouses ON inventory.warehouse_id = warehouses.warehouse_id WHERE warehouses.region = 'Central'",
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [
+      [
+        "25477106.14"
+      ]
+    ],
+    "seconds": 3.1,
+    "error": null
+  },
+  {
+    "id": "inv_value_electrical",
+    "type": "value",
+    "question": "Stock value of Electrical products?",
+    "correct": true,
+    "refused": false,
+    "cards_hit": 0,
+    "cards_expected": 1,
+    "sql": "SELECT SUM(p.unit_price * i.stock_on_hand) AS stock_value FROM products AS p JOIN inventory AS i ON p.product_id = i.product_id WHERE p.category = 'Electrical'",
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [
+      [
+        "14646786.16"
+      ]
+    ],
+    "seconds": 2.6,
+    "error": null
+  },
+  {
+    "id": "lead_planned_overall",
+    "type": "value",
+    "question": "What is the average planned supplier lead time in days?",
+    "correct": true,
+    "refused": false,
+    "cards_hit": 0,
+    "cards_expected": 1,
+    "sql": "SELECT AVG(lead_time_days) AS average_planned_supplier_lead_time FROM purchase_orders",
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [
+      [
+        "15.7366666666666667"
+      ]
+    ],
+    "seconds": 1.8,
+    "error": null
+  },
+  {
+    "id": "lead_actual_west",
+    "type": "value",
+    "question": "How long do suppliers in the West region actually take to deliver, on average?",
+    "correct": false,
+    "refused": false,
+    "cards_hit": 0,
+    "cards_expected": 2,
+    "sql": "SELECT AVG(delay_days) AS average_delivery_delay FROM shipments JOIN purchase_orders ON shipments.product_id = purchase_orders.product_id WHERE purchase_orders.warehouse_id IN (SELECT warehouse_id FROM warehouses WHERE region = 'West') AND shipments.status = 'Delivered'",
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [
+      [
+        null
+      ]
+    ],
+    "seconds": 3.7,
+    "error": null
+  },
+  {
+    "id": "lead_actual_electrical",
+    "type": "value",
+    "question": "avg actual lead time for electrical POs",
+    "correct": false,
+    "refused": false,
+    "cards_hit": 0,
+    "cards_expected": 1,
+    "sql": "SELECT AVG(lead_time_days) AS avg_actual_lead_time FROM purchase_orders WHERE product_id IN (SELECT product_id FROM products WHERE category = 'Electrical')",
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [
+      [
+        "15.6567164179104478"
+      ]
+    ],
+    "seconds": 2.6,
+    "error": null
+  },
+  {
+    "id": "fc_accuracy_overall",
+    "type": "value",
+    "question": "How accurate is our demand forecast?",
+    "correct": false,
+    "refused": false,
+    "cards_hit": 0,
+    "cards_expected": 1,
+    "sql": "SELECT CAST((SUM(actual_qty) - SUM(forecast_qty)) AS DECIMAL) / SUM(forecast_qty) * 100 AS forecast_accuracy FROM forecasts",
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [
+      [
+        "-0.40309226367186917300"
+      ]
+    ],
+    "seconds": 2.8,
+    "error": null
+  },
+  {
+    "id": "fc_accuracy_electrical",
+    "type": "value",
+    "question": "What is forecast accuracy for the Electrical category?",
+    "correct": false,
+    "refused": false,
+    "cards_hit": 0,
+    "cards_expected": 1,
+    "sql": "SELECT (SUM(CASE WHEN p.category = 'Electrical' THEN (f.actual_qty - f.forecast_qty) ELSE 0 END) / SUM(CASE WHEN p.category = 'Electrical' THEN f.forecast_qty ELSE 0 END)) * 100 AS forecast_accuracy FROM products AS p JOIN forecasts AS f ON p.product_id = f.product_id",
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [
+      [
+        0
+      ]
+    ],
+    "seconds": 4.3,
+    "error": null
+  },
+  {
+    "id": "fc_accuracy_jun",
+    "type": "value",
+    "question": "Forecast accuracy for June 2025?",
+    "correct": false,
+    "refused": false,
+    "cards_hit": 0,
+    "cards_expected": 2,
+    "sql": "SELECT CAST((SUM(actual_qty) - SUM(forecast_qty)) AS DECIMAL) / SUM(forecast_qty) * 100 AS forecast_accuracy FROM forecasts WHERE forecast_month = '2025-06-01'",
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [
+      [
+        "-0.37827614158335585000"
+      ]
+    ],
+    "seconds": 3.7,
+    "error": null
+  },
+  {
+    "id": "score_carlson",
+    "type": "value",
+    "question": "What is the supplier score for Carlson Montgomery and Rowe?",
+    "correct": false,
+    "refused": false,
+    "cards_hit": 0,
+    "cards_expected": 1,
+    "sql": "SELECT AVG(s.rating) AS supplier_score FROM suppliers AS s WHERE s.supplier_name = 'Carlson Montgomery and Rowe'",
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [
+      [
+        "4.8500000000000000"
+      ]
+    ],
+    "seconds": 2.2,
+    "error": null
+  },
+  {
+    "id": "score_johnson_rosales",
+    "type": "value",
+    "question": "how does johnson-rosales score as a supplier",
+    "correct": false,
+    "refused": false,
+    "cards_hit": 0,
+    "cards_expected": 1,
+    "sql": "SELECT CAST(NULL AS DECIMAL) AS supplier_score",
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [
+      [
+        null
+      ]
+    ],
+    "seconds": 2.0,
+    "error": null
+  },
+  {
+    "id": "score_hardy_bray",
+    "type": "value",
+    "question": "What is the supplier score for Hardy-Bray?",
+    "correct": false,
+    "refused": false,
+    "cards_hit": 0,
+    "cards_expected": 1,
+    "sql": "SELECT CAST(NULL AS DECIMAL) AS supplier_score FROM suppliers WHERE supplier_name = 'Hardy-Bray'",
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [
+      [
+        null
+      ]
+    ],
+    "seconds": 3.0,
+    "error": null
+  },
+  {
+    "id": "open_orders",
+    "type": "value",
+    "question": "How many customer orders are still open?",
+    "correct": false,
+    "refused": false,
+    "cards_hit": 0,
+    "cards_expected": 1,
+    "sql": "SELECT COUNT(*) AS open_orders FROM orders WHERE status = 'open'",
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [
+      [
+        0
+      ]
+    ],
+    "seconds": 1.8,
+    "error": null
+  },
+  {
+    "id": "cancelled_orders",
+    "type": "value",
+    "question": "how many orders got cancelled",
+    "correct": true,
+    "refused": false,
+    "cards_hit": 0,
+    "cards_expected": 1,
+    "sql": "SELECT COUNT(*) AS cancelled_orders FROM orders WHERE status = 'Cancelled'",
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [
+      [
+        28
+      ]
+    ],
+    "seconds": 1.6,
+    "error": null
+  },
+  {
+    "id": "low_stock_count",
+    "type": "value",
+    "question": "How many product-warehouse locations are below their reorder point?",
+    "correct": false,
+    "refused": false,
+    "cards_hit": 0,
+    "cards_expected": 1,
+    "sql": "SELECT COUNT(*) FROM inventory WHERE stock_on_hand + COALESCE(reserved_qty, 0) < (SELECT reorder_point FROM products WHERE products.product_id = inventory.product_id)",
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [
+      [
+        59
+      ]
+    ],
+    "seconds": 2.9,
+    "error": null
+  },
+  {
+    "id": "stockout_risk_count",
+    "type": "value",
+    "question": "How many locations will run out of stock within a week?",
+    "correct": false,
+    "refused": true,
+    "cards_hit": 0,
+    "cards_expected": 2,
+    "sql": null,
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [],
+    "seconds": 10.7,
+    "error": null
+  },
+  {
+    "id": "late_pos",
+    "type": "value",
+    "question": "How many received purchase orders arrived late?",
+    "correct": true,
+    "refused": false,
+    "cards_hit": 0,
+    "cards_expected": 1,
+    "sql": "SELECT COUNT(*) AS late_po_count FROM purchase_orders WHERE status = 'Received' AND actual_date > expected_date",
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [
+      [
+        78
+      ]
+    ],
+    "seconds": 2.1,
+    "error": null
+  },
+  {
+    "id": "open_po_value",
+    "type": "value",
+    "question": "What is the total value of open purchase orders?",
+    "correct": false,
+    "refused": false,
+    "cards_hit": 0,
+    "cards_expected": 1,
+    "sql": "SELECT SUM(products.unit_price * purchase_orders.quantity) AS total_value FROM purchase_orders JOIN products ON purchase_orders.product_id = products.product_id WHERE purchase_orders.status = 'Open'",
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [
+      [
+        null
+      ]
+    ],
+    "seconds": 3.4,
+    "error": null
+  },
+  {
+    "id": "wape_overall",
+    "type": "value",
+    "question": "What is the overall WAPE?",
+    "correct": false,
+    "refused": true,
+    "cards_hit": 0,
+    "cards_expected": 1,
+    "sql": null,
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [],
+    "seconds": 2.2,
+    "error": null
+  },
+  {
+    "id": "avg_days_late",
+    "type": "value",
+    "question": "On average, how many days late are supplier deliveries?",
+    "correct": false,
+    "refused": false,
+    "cards_hit": 0,
+    "cards_expected": 1,
+    "sql": "SELECT AVG(delay_days) AS average_delay_days FROM shipments WHERE status = 'Late'",
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [
+      [
+        null
+      ]
+    ],
+    "seconds": 2.0,
+    "error": null
+  },
+  {
+    "id": "top_warehouse_value",
+    "type": "list",
+    "question": "Which warehouse holds the most inventory value?",
+    "correct": false,
+    "refused": false,
+    "cards_hit": 0,
+    "cards_expected": 2,
+    "sql": "SELECT warehouse_id FROM (SELECT warehouse_id, SUM(product_id * stock_on_hand) AS total_value FROM inventory GROUP BY warehouse_id) AS subquery ORDER BY total_value DESC LIMIT 1",
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [
+      [
+        5
+      ]
+    ],
+    "seconds": 3.0,
+    "error": null
+  },
+  {
+    "id": "lowest_fill_warehouse",
+    "type": "list",
+    "question": "which warehouse has the worst fill rate",
+    "correct": false,
+    "refused": true,
+    "cards_hit": 0,
+    "cards_expected": 2,
+    "sql": null,
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [],
+    "seconds": 7.9,
+    "error": null
+  },
+  {
+    "id": "bottom3_supplier_on_time",
+    "type": "list",
+    "question": "Which 3 suppliers have the lowest on-time delivery rate?",
+    "correct": false,
+    "refused": false,
+    "cards_hit": 0,
+    "cards_expected": 1,
+    "sql": "SELECT s.supplier_name FROM suppliers AS s JOIN purchase_orders AS po ON s.supplier_id = po.supplier_id JOIN shipments AS sh ON po.po_id = sh.order_id AND po.product_id = sh.product_id WHERE sh.status = 'Delivered' GROUP BY s.supplier_name ORDER BY COUNT(CASE WHEN sh.actual_date <= po.expected_date THEN 1 ELSE NULL END) / COUNT(*) DESC LIMIT 3",
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [
+      [
+        "Holland Smith and Fisher"
+      ],
+      [
+        "Martinez and Sons"
+      ],
+      [
+        "Vargas Ltd"
+      ]
+    ],
+    "seconds": 9.3,
+    "error": null
+  },
+  {
+    "id": "top3_supplier_score",
+    "type": "list",
+    "question": "Top 3 suppliers by supplier score?",
+    "correct": false,
+    "refused": true,
+    "cards_hit": 0,
+    "cards_expected": 1,
+    "sql": null,
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [],
+    "seconds": 9.1,
+    "error": null
+  },
+  {
+    "id": "defect_rate",
+    "type": "refuse",
+    "question": "What is the defect rate for Electrical products?",
+    "correct": true,
+    "refused": true,
+    "cards_hit": 0,
+    "cards_expected": 1,
+    "sql": null,
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [],
+    "seconds": 8.5,
+    "error": null
+  },
+  {
+    "id": "customer_satisfaction",
+    "type": "refuse",
+    "question": "How satisfied are our customers?",
+    "correct": true,
+    "refused": true,
+    "cards_hit": 0,
+    "cards_expected": 1,
+    "sql": null,
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [],
+    "seconds": 1.7,
+    "error": null
+  },
+  {
+    "id": "sales_2024",
+    "type": "refuse",
+    "question": "What were total orders in 2024?",
+    "correct": true,
+    "refused": true,
+    "cards_hit": 0,
+    "cards_expected": 1,
+    "sql": null,
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [],
+    "seconds": 5.7,
+    "error": null
+  },
+  {
+    "id": "delivery_cost",
+    "type": "refuse",
+    "question": "what did deliveries cost us last month",
+    "correct": false,
+    "refused": false,
+    "cards_hit": 0,
+    "cards_expected": 1,
+    "sql": "SELECT SUM(i.stock_on_hand * p.unit_price) AS delivery_cost_last_month FROM inventory AS i JOIN products AS p ON i.product_id = p.product_id WHERE i.last_updated BETWEEN DATE_TRUNC('MONTH', CURRENT_DATE - INTERVAL '1 MONTH') AND DATE_TRUNC('MONTH', CURRENT_DATE - INTERVAL '1 MONTH') + INTERVAL '1 MONTH' - INTERVAL '1 DAY'",
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [
+      [
+        null
+      ]
+    ],
+    "seconds": 4.5,
+    "error": null
+  },
+  {
+    "id": "employee_overtime",
+    "type": "refuse",
+    "question": "How many overtime hours did warehouse staff work?",
+    "correct": true,
+    "refused": true,
+    "cards_hit": 0,
+    "cards_expected": 1,
+    "sql": null,
+    "sources": [
+      "Database schema"
+    ],
+    "result_rows": [],
+    "seconds": 1.3,
+    "error": null
+  }
+]
