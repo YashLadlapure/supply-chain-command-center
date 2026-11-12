@@ -2,7 +2,7 @@
 
 A question-answering tool for the supply-chain database. You type a plain-English question ("What was OTIF for North region warehouses?"). It finds the relevant notes about the tables and KPIs, writes one read-only SQL query, runs it, and returns the number together with the SQL it used.
 
-**Status:** in progress. The knowledge cards, the test questions and the card search are built. It does not answer questions yet, and there are no scores yet.
+**Status:** working and scored. It answers questions, refuses what the data cannot cover, and runs only read-only SQL. On the [evaluation](../docs/rag-eval.md) it answers 20 of 30 questions and refuses all 5 it should. It meets the safety, refusal and speed targets, but not yet the accuracy target (10 of 18 validated slices): the local model mis-writes the harder multi-table KPIs. Next: worked-SQL example cards for those KPIs.
 
 ## What it answers
 
