@@ -1,6 +1,6 @@
 # Supply Chain Performance Command Center
 
-An end-to-end supply-chain analytics project: Python generates a year of realistic operations data, PostgreSQL models it, SQL calculates the KPIs, and Power BI reports them.
+An end-to-end supply-chain analytics project: Python generates a year of realistic operations data, PostgreSQL models it, SQL calculates the KPIs, and Power BI reports them. A natural-language query tool answers plain-English questions against the same database with checked, read-only SQL.
 
 ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white)
@@ -43,6 +43,7 @@ flowchart LR
 | Database | PostgreSQL |
 | Analysis | SQL (joins, CTEs, window functions, views) |
 | Reporting | Power BI, DAX |
+| Natural-language querying | Local model (Ollama), hybrid retrieval, PostgreSQL full-text, sqlglot |
 
 ## Data model
 
@@ -142,6 +143,35 @@ The report is saved as a Power BI Project (`powerbi/SupplyChainCommandCenter.pbi
 **Inventory & Fulfillment**
 
 ![Inventory & Fulfillment](docs/screenshots/inventory-fulfillment.png)
+
+## Ask the data
+
+[`rag/`](rag) is a tool that answers a plain-English question against the database. You ask
+*"What was OTIF for North region warehouses?"*; it finds the relevant notes about the tables,
+KPIs and business rules, writes one SQL query, checks it, runs it read-only, and returns the
+number with the SQL it used. It runs fully locally, with no paid service.
+
+```mermaid
+flowchart LR
+    Q["Question"] --> R["Card search<br/>(embeddings + full-text)"]
+    R --> M["Local model<br/>writes one SELECT"]
+    M --> G["SQL guard<br/>(sqlglot parse)"]
+    G --> DB[("Read-only<br/>database user")]
+    DB --> A["Answer + SQL"]
+```
+
+**Safety.** Every query is parsed, not text-searched, so a write hidden inside a `WITH` block
+is still caught. The tool allows exactly one `SELECT` on known tables, runs it as a database
+user that cannot write, and caps it with a timeout and a row limit. The guard is covered by
+tests in [`rag/tests/`](rag/tests).
+
+**Measured.** The question set and scores are in [`docs/rag-eval.md`](docs/rag-eval.md). The
+knowledge cards lift the answerable score from 6 to 20 out of 30 over a schema-only baseline,
+and the tool refuses all 5 questions the data cannot answer. It meets the safety, refusal and
+speed targets; the accuracy target is not met yet, because the local model mis-writes some
+multi-table KPIs. The honest results and the plan to close the gap are in the write-up.
+
+See [`rag/README.md`](rag/README.md) for the full design.
 
 ## Run it locally
 
