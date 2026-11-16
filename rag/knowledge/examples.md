@@ -388,3 +388,129 @@ SELECT warehouse_name, category,
 FROM category_value
 ORDER BY warehouse_name, inventory_value DESC;
 ```
+
+## Example: OTIF overall
+Question: What is our OTIF?
+```sql
+WITH order_lines AS (
+    SELECT order_id, SUM(ordered_qty) AS ordered_units, SUM(fulfilled_qty) AS fulfilled_units
+    FROM order_items
+    GROUP BY order_id
+),
+order_delivery AS (
+    SELECT order_id, MIN(promised_date) AS promised_date, MAX(actual_date) AS delivered_date
+    FROM shipments
+    WHERE status = 'Delivered'
+    GROUP BY order_id
+)
+SELECT ROUND(AVG((d.delivered_date <= d.promised_date
+                  AND l.fulfilled_units = l.ordered_units)::int) * 100, 2) AS otif_percent
+FROM order_delivery AS d
+JOIN order_lines AS l ON d.order_id = l.order_id;
+```
+
+## Example: OTIF for one region or one month
+Question: What was OTIF for North region warehouses, or for orders placed in June 2025?
+```sql
+-- Build the two CTEs first, then filter. One SELECT only; never nest one aggregate inside another.
+WITH order_lines AS (
+    SELECT order_id, SUM(ordered_qty) AS ordered_units, SUM(fulfilled_qty) AS fulfilled_units
+    FROM order_items
+    GROUP BY order_id
+),
+order_delivery AS (
+    SELECT order_id, MIN(promised_date) AS promised_date, MAX(actual_date) AS delivered_date
+    FROM shipments
+    WHERE status = 'Delivered'
+    GROUP BY order_id
+)
+SELECT ROUND(AVG((d.delivered_date <= d.promised_date
+                  AND l.fulfilled_units = l.ordered_units)::int) * 100, 2) AS otif_percent
+FROM orders AS o
+JOIN warehouses AS w ON o.warehouse_id = w.warehouse_id
+JOIN order_delivery AS d ON o.order_id = d.order_id
+JOIN order_lines AS l ON o.order_id = l.order_id
+WHERE w.region = 'North';
+-- For a month instead, drop the warehouse join and filter the order month:
+--   WHERE DATE_TRUNC('month', o.order_date) = DATE '2025-06-01'
+```
+
+## Example: forecast accuracy overall
+Question: How accurate is our demand forecast?
+```sql
+-- Multiply by 100.0 (a decimal) so this is not integer division, which would make the result wrong.
+SELECT ROUND(AVG(100 - ABS(f.actual_qty - f.forecast_qty) * 100.0 / NULLIF(f.actual_qty, 0)), 2)
+       AS forecast_accuracy_percent
+FROM forecasts AS f;
+-- For one month, add:   WHERE DATE_TRUNC('month', f.forecast_month) = DATE '2025-06-01'
+-- For one category, join products and filter on p.category.
+```
+
+## Example: supplier score for one supplier
+Question: What is the supplier score for a named supplier?
+```sql
+WITH supplier_stats AS (
+    SELECT supplier_id,
+           AVG((actual_date <= expected_date)::int) AS on_time_rate,
+           AVG(GREATEST(actual_date - expected_date, 0)) AS avg_days_late
+    FROM purchase_orders
+    WHERE status = 'Received'
+    GROUP BY supplier_id
+)
+SELECT sp.supplier_name,
+       ROUND((0.5 * ss.on_time_rate
+            + 0.3 * sp.rating / 5.0
+            + 0.2 * (1 - LEAST(ss.avg_days_late / 7.0, 1))) * 100, 2) AS supplier_score
+FROM supplier_stats AS ss
+JOIN suppliers AS sp ON ss.supplier_id = sp.supplier_id
+WHERE sp.supplier_name = 'Carlson Montgomery and Rowe';
+```
+
+## Example: low-stock count
+Question: How many product-warehouse locations are below their reorder point?
+```sql
+SELECT COUNT(*) AS low_stock_locations
+FROM inventory AS i
+JOIN products AS p ON i.product_id = p.product_id
+WHERE i.stock_on_hand - i.reserved_qty < p.reorder_point;
+```
+
+## Example: stockout risk count
+Question: How many locations will run out of stock within a week?
+```sql
+-- Count the locations with less than 7 days of cover. This is the "days of cover < 7" query,
+-- wrapped in a COUNT; do not mix it with the reorder-point (low-stock) query.
+WITH recent_demand AS (
+    SELECT product_id, AVG(actual_qty) / 30.0 AS daily_demand
+    FROM forecasts
+    WHERE forecast_month > (SELECT MAX(forecast_month) FROM forecasts) - INTERVAL '3 months'
+    GROUP BY product_id
+),
+location_cover AS (
+    SELECT i.stock_on_hand - i.reserved_qty AS available_qty,
+           rd.daily_demand / COUNT(*) OVER (PARTITION BY i.product_id) AS location_daily_demand
+    FROM inventory AS i
+    JOIN recent_demand AS rd ON i.product_id = rd.product_id
+)
+SELECT COUNT(*) AS stockout_risk_locations
+FROM location_cover
+WHERE available_qty / NULLIF(location_daily_demand, 0) < 7;
+```
+
+## Example: planned lead time overall
+Question: What is the average planned supplier lead time in days?
+```sql
+-- Planned lead time is stored on every purchase order. Do not filter by status.
+SELECT ROUND(AVG(lead_time_days), 2) AS avg_planned_lead_time_days
+FROM purchase_orders;
+```
+
+## Example: actual lead time for a region
+Question: How long do suppliers in the West region actually take to deliver, on average?
+```sql
+-- Actual lead time = days from order to receipt, for received POs only.
+SELECT ROUND(AVG(po.actual_date - po.order_date), 2) AS avg_actual_lead_time_days
+FROM purchase_orders AS po
+JOIN suppliers AS sp ON po.supplier_id = sp.supplier_id
+WHERE sp.region = 'West' AND po.status = 'Received';
+```
