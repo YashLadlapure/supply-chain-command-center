@@ -166,10 +166,10 @@ user that cannot write, and caps it with a timeout and a row limit. The guard is
 tests in [`rag/tests/`](rag/tests).
 
 **Measured.** The question set and scores are in [`docs/rag-eval.md`](docs/rag-eval.md). The
-knowledge cards lift the answerable score from 6 to 20 out of 30 over a schema-only baseline,
-and the tool refuses all 5 questions the data cannot answer. It meets the safety, refusal and
-speed targets; the accuracy target is not met yet, because the local model mis-writes some
-multi-table KPIs. The honest results and the plan to close the gap are in the write-up.
+knowledge cards lift the answerable score from 7 to 26 out of 30 over a schema-only baseline,
+and the tool refuses all 5 questions the data cannot answer. It meets all four targets:
+16 of 18 validated KPI slices, every refusal, no unsafe SQL, and under 10 seconds per answer.
+The honest results, including the few remaining misses, are in the write-up.
 
 See [`rag/README.md`](rag/README.md) for the full design.
 
