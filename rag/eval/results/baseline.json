@@ -16,7 +16,7 @@
         "1.6081871345029240"
       ]
     ],
-    "seconds": 28.6,
+    "seconds": 11.1,
     "error": null
   },
   {
@@ -36,7 +36,7 @@
         2340
       ]
     ],
-    "seconds": 3.7,
+    "seconds": 4.6,
     "error": null
   },
   {
@@ -52,7 +52,7 @@
       "Database schema"
     ],
     "result_rows": [],
-    "seconds": 10.9,
+    "seconds": 13.8,
     "error": null
   },
   {
@@ -63,16 +63,16 @@
     "refused": false,
     "cards_hit": 0,
     "cards_expected": 1,
-    "sql": "SELECT (SUM(COALESCE(ordered_qty - fulfilled_qty, 0)) / SUM(ordered_qty)) * 100 AS overall_fill_rate FROM order_items",
+    "sql": "SELECT (SUM(COALESCE(fulfilled_qty, 0)) * 1.0 / SUM(ordered_qty)) * 100 AS overall_fill_rate FROM order_items",
     "sources": [
       "Database schema"
     ],
     "result_rows": [
       [
-        0
+        "86.22060903680375777300"
       ]
     ],
-    "seconds": 3.2,
+    "seconds": 3.5,
     "error": null
   },
   {
@@ -83,28 +83,16 @@
     "refused": false,
     "cards_hit": 0,
     "cards_expected": 1,
-    "sql": "SELECT w.region, COUNT(DISTINCT o.order_id) AS total_orders, SUM(CASE WHEN s.actual_date IS NOT NULL THEN 1 ELSE 0 END) AS filled_orders FROM orders AS o JOIN warehouses AS w ON o.warehouse_id = w.warehouse_id LEFT JOIN shipments AS s ON o.order_id = s.order_id AND w.region = 'North' GROUP BY w.region",
+    "sql": "SELECT (SUM(CASE WHEN w.region = 'North' THEN s.shipped_qty ELSE 0 END) / SUM(s.shipped_qty)) AS north_region_fill_rate FROM shipments AS s JOIN orders AS o ON s.order_id = o.order_id JOIN warehouses AS w ON o.warehouse_id = w.warehouse_id",
     "sources": [
       "Database schema"
     ],
     "result_rows": [
       [
-        "Central",
-        196,
-        0
-      ],
-      [
-        "North",
-        202,
-        551
-      ],
-      [
-        "South",
-        102,
         0
       ]
     ],
-    "seconds": 9.2,
+    "seconds": 4.5,
     "error": null
   },
   {
@@ -124,7 +112,7 @@
         0
       ]
     ],
-    "seconds": 2.9,
+    "seconds": 3.7,
     "error": null
   },
   {
@@ -144,7 +132,7 @@
         "62427937.91"
       ]
     ],
-    "seconds": 2.1,
+    "seconds": 2.8,
     "error": null
   },
   {
@@ -164,7 +152,7 @@
         "25477106.14"
       ]
     ],
-    "seconds": 3.1,
+    "seconds": 4.0,
     "error": null
   },
   {
@@ -184,7 +172,7 @@
         "14646786.16"
       ]
     ],
-    "seconds": 2.6,
+    "seconds": 3.2,
     "error": null
   },
   {
@@ -204,7 +192,7 @@
         "15.7366666666666667"
       ]
     ],
-    "seconds": 1.8,
+    "seconds": 2.3,
     "error": null
   },
   {
@@ -224,7 +212,7 @@
         null
       ]
     ],
-    "seconds": 3.7,
+    "seconds": 4.2,
     "error": null
   },
   {
@@ -244,7 +232,7 @@
         "15.6567164179104478"
       ]
     ],
-    "seconds": 2.6,
+    "seconds": 3.2,
     "error": null
   },
   {
@@ -264,7 +252,7 @@
         "-0.40309226367186917300"
       ]
     ],
-    "seconds": 2.8,
+    "seconds": 3.4,
     "error": null
   },
   {
@@ -275,7 +263,7 @@
     "refused": false,
     "cards_hit": 0,
     "cards_expected": 1,
-    "sql": "SELECT (SUM(CASE WHEN p.category = 'Electrical' THEN (f.actual_qty - f.forecast_qty) ELSE 0 END) / SUM(CASE WHEN p.category = 'Electrical' THEN f.forecast_qty ELSE 0 END)) * 100 AS forecast_accuracy FROM products AS p JOIN forecasts AS f ON p.product_id = f.product_id",
+    "sql": "SELECT (SUM(CASE WHEN p.category = 'Electrical' THEN (f.actual_qty - f.forecast_qty) ELSE 0 END) / SUM(CASE WHEN p.category = 'Electrical' THEN f.forecast_qty ELSE 0 END)) * 100 AS forecast_accuracy FROM forecasts AS f JOIN products AS p ON f.product_id = p.product_id",
     "sources": [
       "Database schema"
     ],
@@ -284,7 +272,7 @@
         0
       ]
     ],
-    "seconds": 4.3,
+    "seconds": 5.2,
     "error": null
   },
   {
@@ -304,7 +292,7 @@
         "-0.37827614158335585000"
       ]
     ],
-    "seconds": 3.7,
+    "seconds": 4.4,
     "error": null
   },
   {
@@ -324,7 +312,7 @@
         "4.8500000000000000"
       ]
     ],
-    "seconds": 2.2,
+    "seconds": 2.7,
     "error": null
   },
   {
@@ -332,19 +320,15 @@
     "type": "value",
     "question": "how does johnson-rosales score as a supplier",
     "correct": false,
-    "refused": false,
+    "refused": true,
     "cards_hit": 0,
     "cards_expected": 1,
-    "sql": "SELECT CAST(NULL AS DECIMAL) AS supplier_score",
+    "sql": null,
     "sources": [
       "Database schema"
     ],
-    "result_rows": [
-      [
-        null
-      ]
-    ],
-    "seconds": 2.0,
+    "result_rows": [],
+    "seconds": 2.2,
     "error": null
   },
   {
@@ -355,16 +339,16 @@
     "refused": false,
     "cards_hit": 0,
     "cards_expected": 1,
-    "sql": "SELECT CAST(NULL AS DECIMAL) AS supplier_score FROM suppliers WHERE supplier_name = 'Hardy-Bray'",
+    "sql": "SELECT AVG(s.rating) AS supplier_score FROM suppliers AS s WHERE s.supplier_name = 'Hardy-Bray'",
     "sources": [
       "Database schema"
     ],
     "result_rows": [
       [
-        null
+        "1.47000000000000000000"
       ]
     ],
-    "seconds": 3.0,
+    "seconds": 2.7,
     "error": null
   },
   {
@@ -384,7 +368,7 @@
         0
       ]
     ],
-    "seconds": 1.8,
+    "seconds": 2.1,
     "error": null
   },
   {
@@ -404,7 +388,7 @@
         28
       ]
     ],
-    "seconds": 1.6,
+    "seconds": 2.1,
     "error": null
   },
   {
@@ -415,7 +399,7 @@
     "refused": false,
     "cards_hit": 0,
     "cards_expected": 1,
-    "sql": "SELECT COUNT(*) FROM inventory WHERE stock_on_hand + COALESCE(reserved_qty, 0) < (SELECT reorder_point FROM products WHERE products.product_id = inventory.product_id)",
+    "sql": "SELECT COUNT(*) FROM inventory WHERE stock_on_hand + COALESCE(reserved_qty, 0) < (SELECT reorder_point FROM products WHERE product_id = inventory.product_id)",
     "sources": [
       "Database schema"
     ],
@@ -424,7 +408,7 @@
         59
       ]
     ],
-    "seconds": 2.9,
+    "seconds": 3.4,
     "error": null
   },
   {
@@ -440,7 +424,7 @@
       "Database schema"
     ],
     "result_rows": [],
-    "seconds": 10.7,
+    "seconds": 13.9,
     "error": null
   },
   {
@@ -460,7 +444,7 @@
         78
       ]
     ],
-    "seconds": 2.1,
+    "seconds": 2.5,
     "error": null
   },
   {
@@ -480,7 +464,7 @@
         null
       ]
     ],
-    "seconds": 3.4,
+    "seconds": 3.8,
     "error": null
   },
   {
@@ -488,15 +472,20 @@
     "type": "value",
     "question": "What is the overall WAPE?",
     "correct": false,
-    "refused": true,
+    "refused": false,
     "cards_hit": 0,
     "cards_expected": 1,
-    "sql": null,
+    "sql": "SELECT NULL AS wape, CAST('Insufficient data to calculate WAPE' AS TEXT) AS explanation",
     "sources": [
       "Database schema"
     ],
-    "result_rows": [],
-    "seconds": 2.2,
+    "result_rows": [
+      [
+        null,
+        "Insufficient data to calculate WAPE"
+      ]
+    ],
+    "seconds": 2.6,
     "error": null
   },
   {
@@ -516,27 +505,29 @@
         null
       ]
     ],
-    "seconds": 2.0,
+    "seconds": 2.3,
     "error": null
   },
   {
     "id": "top_warehouse_value",
     "type": "list",
     "question": "Which warehouse holds the most inventory value?",
-    "correct": false,
+    "correct": true,
     "refused": false,
     "cards_hit": 0,
     "cards_expected": 2,
-    "sql": "SELECT warehouse_id FROM (SELECT warehouse_id, SUM(product_id * stock_on_hand) AS total_value FROM inventory GROUP BY warehouse_id) AS subquery ORDER BY total_value DESC LIMIT 1",
+    "sql": "SELECT w.warehouse_id, w.warehouse_name, SUM(i.stock_on_hand * p.unit_price) AS inventory_value FROM inventory AS i JOIN products AS p ON i.product_id = p.product_id JOIN warehouses AS w ON i.warehouse_id = w.warehouse_id GROUP BY w.warehouse_id, w.warehouse_name ORDER BY inventory_value DESC LIMIT 1",
     "sources": [
       "Database schema"
     ],
     "result_rows": [
       [
-        5
+        5,
+        "Warehouse West Margaret",
+        "13088620.04"
       ]
     ],
-    "seconds": 3.0,
+    "seconds": 9.6,
     "error": null
   },
   {
@@ -552,7 +543,7 @@
       "Database schema"
     ],
     "result_rows": [],
-    "seconds": 7.9,
+    "seconds": 9.1,
     "error": null
   },
   {
@@ -560,25 +551,15 @@
     "type": "list",
     "question": "Which 3 suppliers have the lowest on-time delivery rate?",
     "correct": false,
-    "refused": false,
+    "refused": true,
     "cards_hit": 0,
     "cards_expected": 1,
-    "sql": "SELECT s.supplier_name FROM suppliers AS s JOIN purchase_orders AS po ON s.supplier_id = po.supplier_id JOIN shipments AS sh ON po.po_id = sh.order_id AND po.product_id = sh.product_id WHERE sh.status = 'Delivered' GROUP BY s.supplier_name ORDER BY COUNT(CASE WHEN sh.actual_date <= po.expected_date THEN 1 ELSE NULL END) / COUNT(*) DESC LIMIT 3",
+    "sql": null,
     "sources": [
       "Database schema"
     ],
-    "result_rows": [
-      [
-        "Holland Smith and Fisher"
-      ],
-      [
-        "Martinez and Sons"
-      ],
-      [
-        "Vargas Ltd"
-      ]
-    ],
-    "seconds": 9.3,
+    "result_rows": [],
+    "seconds": 13.5,
     "error": null
   },
   {
@@ -594,7 +575,7 @@
       "Database schema"
     ],
     "result_rows": [],
-    "seconds": 9.1,
+    "seconds": 11.2,
     "error": null
   },
   {
@@ -610,7 +591,7 @@
       "Database schema"
     ],
     "result_rows": [],
-    "seconds": 8.5,
+    "seconds": 11.0,
     "error": null
   },
   {
@@ -626,7 +607,7 @@
       "Database schema"
     ],
     "result_rows": [],
-    "seconds": 1.7,
+    "seconds": 2.1,
     "error": null
   },
   {
@@ -642,7 +623,7 @@
       "Database schema"
     ],
     "result_rows": [],
-    "seconds": 5.7,
+    "seconds": 7.1,
     "error": null
   },
   {
@@ -662,7 +643,7 @@
         null
       ]
     ],
-    "seconds": 4.5,
+    "seconds": 5.7,
     "error": null
   },
   {
@@ -678,7 +659,7 @@
       "Database schema"
     ],
     "result_rows": [],
-    "seconds": 1.3,
+    "seconds": 1.7,
     "error": null
   }
 ]
